@@ -1,17 +1,16 @@
-"""
-    itoh(phi)
 
-Itoh's algorithm for 1D phase unwrapping.
-"""
-function itoh(phi)
-    dphi = phwrap(circshift(phi, -1) .- phi)
-    phi_restored = similar(dphi)
-    integral = phi[1]
-    for i in eachindex(dphi)
-        phi_restored[i] = integral
-        integral += dphi[i]
-    end
-    return phi_restored
-end  # function itohphi
+function integrate_2dgrad(gx, gy)
+    GX = fft(gx)
+    GY = fft(gy)
 
-export itoh
+    kxx = _grad_kernel(gx, 2, FiniteDifferencesCyclic())
+    kyy = _grad_kernel(gy, 1, FiniteDifferencesCyclic())
+
+    solfft = (GX .* conj(kxx) .+ GY .* conj(kyy)) ./ (abs2.(kxx) .+ abs2.(kyy))
+    solfft[1, 1] = 0
+
+    return real(ifft(solfft))
+end
+
+export integrate_2dgrad
+

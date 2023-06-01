@@ -27,7 +27,7 @@ step = (
 """
     _find_edges(ap)
 
-Return left, right, top, and bottom edges of the aperture
+Return arrays of the left, right, top, and bottom edges of the aperture
 """
 function _find_edges(ap)
     LE = findall(ap - circshift(ap, (0,1)) .== 1)
@@ -42,7 +42,7 @@ end  # function _find_edges
 """
     _find_set_edges(ap)
 
-Return left, right, top, and bottom edges of the aperture
+Return sets of the left, right, top, and bottom edges of the aperture
 """
 function _find_set_edges(ap)
     return NamedTuple{alldirs}(_find_edges(ap))
@@ -88,7 +88,7 @@ function _find_cw_border_push(ap)
         # @show direction # debug   
         pos = pos + step[direction]
     end
-    return cw_cont_ap
+    return cw_cont_ap, edge
 
 end
 
@@ -131,7 +131,7 @@ function _find_cw_border_alloc(ap)
         # @show direction # debug   
         pos = pos + step[direction]
     end
-    return cw_cont_ap
+    return cw_cont_ap, edge
 end
 
 # Both functions seem to be equally fast. Expport one of them
