@@ -2,13 +2,14 @@ struct Fourier end
 struct FiniteDifferences end
 struct FiniteDifferencesCyclic end
 
-_calculate_gradient(a) = _calculate_gradient(a, FiniteDifferencesCyclic())
-
 """
     _calculate_gradient(a [, method] )
 
-Document this function
+Return components of the gradient of the array`a` calculated using
+`method`(`FiniteDifferencesCyclic` by default).
 """
+_calculate_gradient(a) = _calculate_gradient(a, FiniteDifferencesCyclic())
+
 function _calculate_gradient(a, ::Fourier)
     return real([ifft(fft(a, i) .* _grad_kernel(a, i), i) for i in 1:ndims(a)])
 end
@@ -16,7 +17,10 @@ end
 """
     _gradfreq(n)
 
-Calculate frequencies suitable for gradient calculations 
+Calculate frequencies suitable for gradient calculations. These are the
+    `fftfreq`, with the largest frequency (the Nyquist frequency) set to zero
+    so the Fourier transform of the gradient calculated from a real function
+    is Hermitian.
 """
 function _gradfreq(n)
     f = collect(fftfreq(n))
