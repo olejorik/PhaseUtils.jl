@@ -20,8 +20,8 @@ function maskedphasermse(a, b, binmask)
 end
 
 function ap2mask(ap)
-    mask = zero(ap) .+ 1
-    mask[ap .== 0] .= missing
+    mask = Array{Union{Missing, Int}}(missing, size(ap)...)
+    mask[ap .!= 0] .= 1
     return mask
 end
 
