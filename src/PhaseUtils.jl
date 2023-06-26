@@ -32,7 +32,7 @@ function mask2ap(mask)
 end
 
 function bboxview(arr)
-    idx = findall(!ismissing, arr)
+    idx = findall(!isnan, arr)
     region = minimum(idx):maximum(idx)
     return @view arr[region]
 end
@@ -43,7 +43,8 @@ end
 Make a box corresponding to the mask not-NaN elements surrounded by pad.
 """
 function bboxview(arr, mask, pad=0)
-    idx = findall(!ismissing, mask)
+    # idx = findall(!ismissing, mask)    
+    idx = findall(!isnan, mask)
     cpad = CartesianIndex(pad, pad)
     region = (minimum(idx) - cpad):(maximum(idx) + cpad)
     return @view arr[region]
