@@ -20,8 +20,10 @@ function maskedphasermse(a, b, binmask)
 end
 
 function ap2mask(ap)
-    mask = Array{Union{Missing, Int}}(missing, size(ap)...)
+    # mask = Array{Union{Missing, Int}}(missing, size(ap)...)
+    mask = Array{Float64}(undef, size(ap)...)
     mask[ap .!= 0] .= 1
+    mask[ap .== 0] .= NaN
     return mask
 end
 
