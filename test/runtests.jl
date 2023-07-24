@@ -44,11 +44,14 @@ using Test
         a = reshape(1:15, 3, 5)
         @test PhaseUtils.croprange((2, 2), 2) == CartesianIndices((1:2, 1:2))
         @test PhaseUtils.croprange((2, 2), (1, 3)) == CartesianIndices((0:1, 2:3))
-        @test PhaseUtils.crop(a, 1, (1, 3)) == [7;;]
-        @test PhaseUtils.crop(a, (2, 2), (1, 3)) == [4 7;]
-        @test PhaseUtils.crop(a, (2, 2), 2) == [1 4; 2 5]
-        @test PhaseUtils.crop(a, 1) == [8;;]
-        @test PhaseUtils.crop(a, 2) == [4 7; 5 8]
-        @test PhaseUtils.crop(a, 3) == [4 7 10; 5 8 11; 6 9 12]
+        @test crop(a, 1, (1, 3)) == [7;;]
+        @test crop(a, (2, 2), (1, 3)) == [4 7;]
+        @test crop(a, (2, 2), 2) == [1 4; 2 5]
+        @test crop(a, 1) == [8;;]
+        @test crop(a, 2) == [4 7; 5 8]
+        @test crop(a, 3) == [4 7 10; 5 8 11; 6 9 12]
+        @test crop(a, 2, 2) == [1 4; 2 5]
+        @test crop(2, 2)(a) == [1 4; 2 5]
+        @test crop(3)(a) == [4 7 10; 5 8 11; 6 9 12]
     end
 end
