@@ -29,7 +29,7 @@ end
 
 function mask2ap(mask)
     ap = zero(mask) .+ 1
-    ap[ismissing.(mask)] .= 0
+    ap[isnan.(mask)] .= 0
     return ap
 end
 
@@ -45,7 +45,7 @@ end
 Make a box corresponding to the mask not-NaN elements surrounded by pad.
 """
 function bboxview(arr, mask, pad=0)
-    # idx = findall(!ismissing, mask)    
+    # idx = findall(!ismissing, mask)
     idx = findall(!isnan, mask)
     cpad = CartesianIndex(pad, pad)
     region = (minimum(idx) - cpad):(maximum(idx) + cpad)
@@ -65,5 +65,6 @@ include("aperture_border.jl")
 include("differentiations.jl")
 include("integrations.jl")
 include("unwrapping.jl")
+include("cropandpad.jl")
 
 end
