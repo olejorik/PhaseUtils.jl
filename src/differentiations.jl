@@ -1,6 +1,10 @@
-struct Fourier end
-struct FiniteDifferences end
-struct FiniteDifferencesCyclic end
+abstract type GradientCalculationAlg end
+
+struct Fourier <: GradientCalculationAlg end
+struct FiniteDifferences <: GradientCalculationAlg end
+struct FiniteDifferencesCyclic <: GradientCalculationAlg end
+
+default_grad_method(a) = FiniteDifferencesCyclic()
 
 """
     _calculate_gradient(a [, method] )
@@ -8,10 +12,32 @@ struct FiniteDifferencesCyclic end
 Return components of the gradient of the array`a` calculated using
 `method`(`FiniteDifferencesCyclic` by default).
 """
-_calculate_gradient(a) = _calculate_gradient(a, FiniteDifferencesCyclic())
+_calculate_gradient(a) = _calculate_gradient(a, default_grad_method(a))
+
+function _calculate_gradient(a, method::GradientCalculationAlg)
+    return error("Implement $(typeof(method)) for gradient calcualtion")
+end
 
 function _calculate_gradient(a, ::Fourier)
     return real([ifft(fft(a, i) .* _grad_kernel(a, i), i) for i in 1:ndims(a)])
+end
+
+function _calculate_gradient(a, ::FiniteDifferences)
+    return [a[2:end, :] .- a[1:(end - 1), :], a[:, 2:end] .- a[:, 1:(end - 1)]]
+end
+
+function _calculate_gradient(a, ::FiniteDifferencesCyclic)
+    # ax = copy(a)
+    # ay = copy(a)
+
+    # ax[2:end, :] .= a[2:end, :] .- a[1:(end - 1), :]
+    # ax[1, :] = a[1, :] .- a[end, :]
+    # ay[:, 2:end] .= a[:, 2:end] .- a[:, 1:(end - 1)]
+    # ay[:, 1] .= a[:, 1] .- a[:, end]
+
+    ax = a .- circshift(a, Tuple(-step.left))
+    ay = a .- circshift(a, Tuple(-step.up))
+    return [ax, ay]
 end
 
 """
@@ -36,34 +62,16 @@ function _grad_kernel(a, i, ::Fourier)
     return reshape(-im .* _gradfreq(size(a)[i]), Tuple(_dim))
 end
 
-_grad_kernel(a, i) = _grad_kernel(a, i, Fourier())
-
 function _grad_kernel(a, i, ::FiniteDifferencesCyclic)
     _dim = ones(Int, ndims(a))
     _dim[i] = size(a)[i]
     return 1 .- reshape(exp.(-2π .* im .* fftfreq(size(a)[i])), Tuple(_dim))
 end
 
-function _calculate_gradient(a, ::FiniteDifferences)
-    return [a[2:end, :] .- a[1:(end - 1), :], a[:, 2:end] .- a[:, 1:(end - 1)]]
-end
-
-function _calculate_gradient(a, ::FiniteDifferencesCyclic)
-    # ax = copy(a)
-    # ay = copy(a)
-
-    # ax[2:end, :] .= a[2:end, :] .- a[1:(end - 1), :]
-    # ax[1, :] = a[1, :] .- a[end, :]
-    # ay[:, 2:end] .= a[:, 2:end] .- a[:, 1:(end - 1)]
-    # ay[:, 1] .= a[:, 1] .- a[:, end]
-
-    ax = a .- circshift(a, Tuple(-step.left))
-    ay = a .- circshift(a, Tuple(-step.up))
-    return [ax, ay]
-end
+_grad_kernel(a, i) = _grad_kernel(a, i, default_grad_method(a))
 
 """
-    _calculate_Laplacian(a, ::FiniteDifferencesCyclic)
+    _calculate_Laplacian(a [, method::GradientCalculationAlg])
 
 TODO: add other methods and description
 """
@@ -80,4 +88,8 @@ function _calculate_Laplacian(a, ::FiniteDifferencesCyclic)
     return ax2 .+ ay2
 end
 
-_calculate_Laplacian(a) = _calculate_Laplacian(a, FiniteDifferencesCyclic())
+function _calculate_Laplacian(a, method::GradientCalculationAlg)
+    return error("Implement $(typeof(method)) for Laplacian calculation")
+end
+
+_calculate_Laplacian(a) = _calculate_Laplacian(a, default_grad_method(a))

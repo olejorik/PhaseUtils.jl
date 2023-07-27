@@ -18,6 +18,14 @@ using Test
             PhaseUtils._calculate_gradient(aaa, PhaseUtils.FiniteDifferencesCyclic()) .==
             [[-6 3 3; -6 3 3; -6 3 3], [-2 -2 -2; 1 1 1; 1 1 1]],
         )
+
+        ## Laplacian
+        x = y = -1.2:0.2:1.2
+        ap = @. x^2 + y'^2 <= 1
+        f = @. (x^2 + y'^2 - 1) * ap
+        l = PhaseUtils._calculate_Laplacian(f, PhaseUtils.FiniteDifferencesCyclic())
+        @test all(l[1:2, 1:2] .== 0)
+        @test all(l[6:8, 6:8] .≈ -0.16)
     end
 
     @testset "PhaseUnwrapping" begin
@@ -27,6 +35,8 @@ using Test
         wedge .*= wedge_ap
         sol = unwrap_LS(phwrap(wedge), wedge_ap; restore_piston=true)
         @test all(phwrap(sol .* wedge_ap) .≈ phwrap(wedge .* wedge_ap))
+
+        @test itoh(phwrap(1:100)) == 1:100
 
         # Example with a circular aperture
         ap = zeros(s1, s2)

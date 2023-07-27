@@ -1,6 +1,9 @@
 module PhaseUtils
 using FFTW
 
+abstract type InverseProblemAlg end
+struct LeastSquares <: InverseProblemAlg end
+
 function igram(phase, a=0.5, b=0.5)
     return a .+ b .* cos.(phase)
 end
