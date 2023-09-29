@@ -1,6 +1,6 @@
 # Phase unwrapping algorithms
 
-export itoh, unwrap_LS
+export itoh, unwrap_LS, getresmap, getresmapsparce
 
 """
     itoh(phi)
@@ -65,7 +65,7 @@ end
 """
     unwrap_LS(phase, aperture; restore_piston=true)
 
-Unwrap 2D `phase` defined inside `aperture`` using the Least-Squares decomposition
+Unwrap 2D `phase` defined inside `aperture` using the Least-Squares decomposition
 of the wrapped gradient of the wprapped phase in the rotor-free and solenodial field
 and integration of the rotor-free part.
 
@@ -116,4 +116,40 @@ function unwrap_LS(phase, ap; restore_piston=true)
     end
 
     return sol
+end
+
+function resblock(A)
+    return sum(
+        phwrap, [A[2, 1] - A[1, 1], A[2, 2] - A[2, 1], A[1, 2] - A[2, 2], A[1, 1] - A[1, 2]]
+    )
+end
+
+function getresmap(phase, positions=true)
+    I, J = size(phase)
+    resmap = similar(phase, I - 1, J - 1)
+    posx = similar(phase, I - 1, J - 1)
+    posy = similar(phase, I - 1, J - 1)
+    for i in 1:(I - 1), j in 1:(J - 1)
+        resmap[i, j] = resblock(phase[i:(i + 1), j:(j + 1)]) ÷ (2π)
+        posx[i, j] = i + 1 / 2
+        posy[i, j] = j + 1 / 2
+    end
+    resmap[resmap .== 0] .= NaN
+    return posy, posx, resmap
+end
+
+function getresmapsparce(phase)
+    I, J = size(phase)
+    resmap = Int[]
+    posx = Float16[]
+    posy = Float16[]
+    for i in 1:(I - 1), j in 1:(J - 1)
+        res = div(resblock(phase[i:(i + 1), j:(j + 1)]), (2π), RoundNearest)
+        if !isnan(res) && res != 0
+            push!(resmap, res)
+            push!(posx, i + 1 / 2)
+            push!(posy, j + 1 / 2)
+        end
+    end
+    return posx, posy, resmap
 end

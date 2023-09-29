@@ -18,6 +18,7 @@ diffirst(v) = [t .- v[1] for t in v[2:end]]
 dotproduct(a, b) = sum([xa .* xb for (xa, xb) in zip(a, b)])
 
 maskedrmse(a, b, binmask) = sqrt(sum(abs2, (a .- b) .* binmask) / sum(binmask))
+
 function maskedphasermse(a, b, binmask)
     return sqrt(sum(abs2, phwrap.((a .- b) .* binmask)) / sum(binmask))
 end
