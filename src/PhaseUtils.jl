@@ -58,6 +58,7 @@ end
 
 export phwrap, maskedrmse, maskedphasermse, ap2mask, mask2ap
 export bboxview
+export hardthreshold, hardthreshold!, softthreshold
 
 # Small convenience utils
 zerostomissing(a) = replace(a, 0 => missing)
@@ -70,5 +71,6 @@ include("differentiations.jl")
 include("integrations.jl")
 include("unwrapping.jl")
 include("cropandpad.jl")
+include("imageprocessing.jl")
 
 end
