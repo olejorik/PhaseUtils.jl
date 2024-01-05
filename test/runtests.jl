@@ -28,6 +28,25 @@ using Test
         @test all(l[6:8, 6:8] .≈ -0.16)
     end
 
+    @testset "PhaseUnwrappingContour" begin
+        # ϕ = 20 * cos.(range(0, 6π, 200)) .+ 5
+        # w = phwrap(ϕ)
+        # fig, ax, l = lines(ϕ; label="Ground truth", linewidth=5, color=(:gray, 0.5))
+        # lines!(w; label="wrapped phase")
+        # fi = itoh(w)
+        # lines!(fi; label="Itoh algorithm")
+
+        # fc = PhaseUtils.unwrap_contour_LS(w)
+        # lines!(fc; label="Fourier algorithm")
+
+        # axislegend(ax)
+        # fig
+        ϕ = 20 * cos.(range(0, 6π, 200))
+        ϕ .-= (sum(ϕ) / length(ϕ))
+        w = phwrap(ϕ)
+        fc = PhaseUtils.unwrap_contour_LS(w; restore_piston=false)
+        @test all(fc .≈ ϕ)
+    end
     @testset "PhaseUnwrapping" begin
         s1, s2, m = 140, 100, 25
         wedge = [0.5i for i in 1:s1, j in 1:s2]

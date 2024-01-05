@@ -23,4 +23,20 @@ end
 
 integrate_2dgrad(gx, gy, args...) = integrate_2dgrad(gx, gy, LeastSquares(), args...)
 
-export integrate_2dgrad
+"""
+    integrate_periodic_grad(g)
+
+Integrate 1D gradient with periodic boundary conditions
+"""
+function integrate_periodic_grad(g)
+    G = fft(g)
+
+    k = _grad_kernel(g, 1, FiniteDifferencesCyclic())
+
+    solfft = (G .* conj(k)) ./ abs2.(k)
+    solfft[1] = 0
+
+    return real(ifft(solfft))
+end
+
+export integrate_2dgrad, integrate_periodic_grad

@@ -83,7 +83,9 @@ function unwrap_LS(phase, ap; restore_piston=true)
 
     # unwrap the phase on the boundary
     ph_b = phase_0[cw_cont_ap]
-    ph_r = itoh(ph_b)
+    # ph_r = itoh(ph_b) # this is valid only for consistent case
+    # in a general case, use the least-squares approach
+    ph_r = unwrap_contour_LS(ph_b)
 
     # Substite in the gradients the values calculated on the edges with the real ones
 
@@ -116,6 +118,21 @@ function unwrap_LS(phase, ap; restore_piston=true)
     end
 
     return sol
+end
+
+function unwrap_contour_LS(phase; restore_piston=false)
+    wg = phwrap(phase .- circshift(phase, 1))
+
+    sol = integrate_periodic_grad(wg)
+
+    if restore_piston
+        piston = sum(phase) / length(phase)
+        sol .+= piston # the mean of the restored phase is equa to the mean of the wrapped phase
+    end
+
+    return sol
+    # return itoh(phase)
+
 end
 
 function resblock(A)
