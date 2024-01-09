@@ -23,6 +23,13 @@ function maskedphasermse(a, b, binmask)
     return sqrt(sum(abs2, phwrap.((a .- b) .* binmask)) / sum(binmask))
 end
 
+"""
+    ap2mask(ap)
+
+Converts  `ap` array to mask, so that every zrro is mapped to `NaN` and non-zero elements to 1.
+
+See also [`mask2ap`](@ref).
+"""
 function ap2mask(ap)
     # mask = Array{Union{Missing, Int}}(missing, size(ap)...)
     mask = Array{Float64}(undef, size(ap)...)
@@ -31,6 +38,11 @@ function ap2mask(ap)
     return mask
 end
 
+"""
+    mask2ap(mask)
+
+Converts  `mask` array where points outside the aperture are defines as `NaN` to a Float array, so that `NaN` -> 0, `not NaN` -> 1.
+"""
 function mask2ap(mask)
     ap = zero(mask) .+ 1
     ap[isnan.(mask)] .= 0
