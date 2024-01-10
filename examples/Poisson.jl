@@ -26,11 +26,8 @@ CairoMakie.activate!(; type="png")
 # Let us simulate a response of a membrane deformable mirror using the Poisson equation.
 # Define a circular aperture of 145-pixel radius and a circular actuator  of 10-pixel radius inside it:
 
-mask = zeros(300, 300)
-mask = [
-    ((i[1] - 150)^2 + (i[2] - 150)^2 < 145^2) for i in eachindex(IndexCartesian(), mask)
-]
-act = [((i[1] - 50)^2 + (i[2] - 153.5)^2 < 10^2) for i in eachindex(IndexCartesian(), mask)];
+mask = circlemask((300, 300), 150, 150, 145)
+act = circlemask((300, 300), 50, 153.5, 10)
 
 # Plot actuator inside the aperture:
 heatmap(mask .+ act; axis=(aspect=DataAspect(),))
@@ -55,51 +52,14 @@ fig, ax, hm = heatmap(u; axis=(aspect=DataAspect(),))
 contour!(u; labels=true, levels=-1:0.1:1, labelsize=15, color=:black)
 fig
 
-# # Phase Unwrapping
-# We will use the calculated response function for the phase unwrapping demonstration.
-# First we define a couple of plotting functions to save on typing
-phasedisplay(args...; kwargs...) = heatmap(
-    args...;
-    axis=(aspect=DataAspect(),),
-    colormap=:cyclic_mygbm_30_95_c78_n256,
-    kwargs...,
-)
-arraydisplay(args...; kwargs...) = heatmap(args...; axis=(aspect=DataAspect(),), kwargs...)
+# Next example sets the boundary values for a circular aperture
 
-resp ./= 10
-arraydisplay(resp)
+edge_out = find_cw_border(mask; outside=true)[1]
+u = zeros(size(mask))
+u[edge_out] .= sin.(range(0, 3 * 2π, length(edge_out) + 1)[1:(end - 1)])
+heatmap(u; axis=(aspect=DataAspect(),))
 
-resp_wr = phwrap(resp)
-phasedisplay(resp_wr)
-
-# This noiseless, periodic, and defined on the whole domain phase is easy to unwrap by line-by-line integration of wrapped phase differences using Itoh algorithm, see [`itoh`](@ref).
-ph_itoh = reshape(itoh(resp_wr[:]), size(resp_wr))
-arraydisplay(ph_itoh)
-
-# Phases occurring in real life are usually a little bit more complicated.
-# First of all, they are often defined only in some region ``Ω```, and do not zero out on the boundary of the region ``∂Ω```.
-# This is simulated below by adding some linear tilt to the phase.
-
-tilt = [(i[1] * 0.000135 + i[2] * 0.0011 + 10) for i in eachindex(IndexCartesian(), mask)]
-resp_wr = phwrap((resp .+ tilt)) .* mask
-phasedisplay(resp_wr .* ap2mask(mask))
-# (here we have used [`ap2mask`](@ref) function which removes the pixels outside the mask for better visibility).
-
-# Here is what happens if we subtract the (exactly known) tilt from our new wrapped phase
-
-phasedisplay((resp_wr .- tilt) .* ap2mask(mask))
-
-#
-
-#
-# This phase should not be restorable by the Itoh algorithm because the jumps on the boundary are greater than ``π``, and indeed we see the errors in unwrapping
-ph_itoh = reshape(itoh(resp_wr[:]), size(resp_wr))
-arraydisplay((ph_itoh .- tilt) .* mask)
-# but wrapped back it looks OK, of course (what we see is just unwrapping errors, assigning wrong ``k`` to an unwrapped value `` \hat{\phi} = \psi + 2πk, k ∈ \mathbb{Z}``):
-phasedisplay(phwrap(ph_itoh .- tilt) .* ap2mask(mask))
-
-# We can try to unwrap it with the least-squares algorithm
-phi_LS = unwrap_LS(resp_wr, mask)
-arraydisplay((phi_LS .- tilt) .* mask)
-# The error here is more fundamental:
-phasedisplay(phwrap(phi_LS .- tilt) .* ap2mask(mask))
+membrane_sor!(u, zeros(size(u)), mask)
+fig, ax, hm = heatmap(u .* ap2mask(mask); axis=(aspect=DataAspect(),))
+contour!(u; labels=true, levels=-0.9:0.1:0.9, labelsize=15, color=:white)
+fig

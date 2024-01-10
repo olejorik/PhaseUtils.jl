@@ -32,7 +32,9 @@ makedocs(;
     ),
     clean=false,
     pages=[
-        "Home" => "index.md", "About" => "about.md", "Examples" => ["examples/Poisson.md"]
+        "Home" => "index.md",
+        "About" => "about.md",
+        "Examples" => ["examples/Poisson.md", "examples/Unwrapping.md"],
     ],
 )
 

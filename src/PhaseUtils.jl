@@ -1,6 +1,11 @@
 module PhaseUtils
 using FFTW
 
+export phwrap, maskedrmse, maskedphasermse, ap2mask, mask2ap
+export bboxview
+export hardthreshold, hardthreshold!, softthreshold
+export circlemask, circlemask!, linearphase
+
 abstract type InverseProblemAlg end
 struct LeastSquares <: InverseProblemAlg end
 
@@ -68,15 +73,76 @@ function bboxview(arr, mask, pad=0)
     return @view arr[region]
 end
 
-export phwrap, maskedrmse, maskedphasermse, ap2mask, mask2ap
-export bboxview
-export hardthreshold, hardthreshold!, softthreshold
+
 
 # Small convenience utils
 zerostomissing(a) = replace(a, 0 => missing)
 missingtozeros(a) = replace(a, missing => 0)
 equalizemissing(a) = replace(x -> ismissing(x) ? missing : 1, a)
 missingtobinary(a) = missingtozeros(equalizemissing(a))
+
+"""
+    circlemask!(a::Matrix{<:Number}, cx, cy, r)
+
+Set to zero values of matrix `a` outside the circle with center (`cx`,`cy`) and radius `r`.
+"""
+function circlemask!(a::Matrix{<:Number}, cx, cy, r)
+    for i in eachindex(IndexCartesian(), a)
+        ((i[1] - cx)^2 + (i[2] - cy)^2 > r^2) && (a[i] = 0)
+    end
+    return nothing
+end
+
+"""
+    circlemask(dims::NTuple{2, Int}, cx, cy, r)
+
+Create a boolean matrix of size `dims` with `true` only inside the circle with center (`cx`,`cy`) and radius `r`.
+
+## Example
+```julia
+julia> circlemask((6,8), 2.5,3, 1.5)
+6×8 Matrix{Bool}:
+ 0  0  1  0  0  0  0  0
+ 0  1  1  1  0  0  0  0
+ 0  1  1  1  0  0  0  0
+ 0  0  1  0  0  0  0  0
+ 0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0
+```
+"""
+function circlemask(dims::NTuple{2,Int}, cx, cy, r)
+    a = ones(Bool, dims)
+    circlemask!(a, cx, cy, r)
+    return a
+end
+
+"""
+    linearphase(T=Float64, dims::NTuple{2,Int},  cx, cy, kx, ky)
+
+Create a matrix with linear phase with slopes (`kx`, `ky`) and having zero at point (`cx`, `cy`).
+
+## Example
+```julia
+julia> linearphase((5,7), 3, 3, 1.5, 1.5)
+5×7 Matrix{Float64}:
+ -6.0  -4.5  -3.0  -1.5  0.0  1.5  3.0
+ -4.5  -3.0  -1.5   0.0  1.5  3.0  4.5
+ -3.0  -1.5   0.0   1.5  3.0  4.5  6.0
+ -1.5   0.0   1.5   3.0  4.5  6.0  7.5
+  0.0   1.5   3.0   4.5  6.0  7.5  9.0
+```
+"""
+function linearphase(T::Type{<:Number}, dims::NTuple{2,Int}, cx, cy, kx, ky)
+    a = Array{T,2}(undef, dims)
+    for i in eachindex(IndexCartesian(), a)
+        a[i] = (i[1] - cx) * kx + (i[2] - cy) * ky
+    end
+    return a
+end
+
+linearphase(dims::NTuple{2,Int}, cx, cy, kx, ky) =
+    linearphase(Float64, dims, cx, cy, kx, ky)
+
 
 include("aperture_border.jl")
 include("differentiations.jl")
