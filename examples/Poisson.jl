@@ -27,7 +27,7 @@ CairoMakie.activate!(; type="png")
 # Define a circular aperture of 145-pixel radius and a circular actuator  of 10-pixel radius inside it:
 
 mask = circlemask((300, 300), 150, 150, 145)
-act = circlemask((300, 300), 50, 153.5, 10)
+act = circlemask((300, 300), 50, 153.5, 10);
 
 # Plot actuator inside the aperture:
 heatmap(mask .+ act; axis=(aspect=DataAspect(),))
