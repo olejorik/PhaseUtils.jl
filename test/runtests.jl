@@ -52,8 +52,10 @@ using Test
         wedge = [0.5i for i in 1:s1, j in 1:s2]
         wedge_ap = [m < i < s1 - m && 25 < j < s2 - m for i in 1:s1, j in 1:s2]
         wedge .*= wedge_ap
-        sol = unwrap_LS(phwrap(wedge), wedge_ap; restore_piston=true)
-        @test all(phwrap(sol .* wedge_ap) .≈ phwrap(wedge .* wedge_ap))
+        wedge .-= sum(wedge) / sum(wedge_ap) #extract mean
+        sol = unwrap_LS(phwrap(wedge), wedge_ap; restore_piston=false)
+        sol .-= sum(sol) / sum(wedge_ap) #extract mean
+        @test maskedrmse(sol, wedge, wedge_ap) / sum(wedge_ap) < 1e-16
 
         @test itoh(phwrap(1:100)) == 1:100
 
@@ -63,10 +65,12 @@ using Test
         x = range(-1.1, 1.1, s2)
         ap[[x .^ 2 + y .^ 2 .<= 1 for y in y, x in x]] .= 1
         phaseGT = [-x^3 + 3x .^ 2 + y .^ 2 - 10y for y in y, x in x]
-        phase = phwrap(phaseGT) .* ap
+        phase = phwrap(phaseGT) .* ap#extract mean
         sol = unwrap_LS(phase, ap; restore_piston=true)
-        @test all(phwrap(phaseGT .- sol) .* ap .+ 1 .≈ 1.0)  # the difference can be 2pi*k, so we wrap it
-        # relatively to 1., the error should be negligible.
+        sol .-= sum(sol) / sum(ap)
+        err = (sol .- phaseGT)
+        err .-= sum(err .* ap) / sum(ap)
+        @test maskedrmse(err, ap) / sum(ap) < 1e-16
     end
 
     @testset "Crop and Pad" begin

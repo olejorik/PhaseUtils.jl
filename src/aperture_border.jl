@@ -86,12 +86,15 @@ end
 function _find_cw_border_alloc(ap; outside=false)
     if outside
         (cwlike, ccwlike) = (ccw, cw)
-        ap .= 1 .- ap
+        deltalength = -4
+        edge = _find_set_edges(.!ap)
     else
         (cwlike, ccwlike) = (cw, ccw)
+        deltalength = 4
+        edge = _find_set_edges(ap)
     end
 
-    edge = _find_set_edges(ap)
+
 
     # set any direction #TODO rewrtie as afunction
     direction = :left
@@ -108,7 +111,8 @@ function _find_cw_border_alloc(ap; outside=false)
 
 
     # Approach with preallocation
-    cw_cont_ap = zeros(CartesianIndex{2}, sum([length(e) for e in edge]) - 4) # total amount of edges - left turns (belongs to two edges) + right turns (no edge). Should be improved if we have points belonging to three edges
+    cw_cont_ap = zeros(CartesianIndex{2}, sum([length(e) for e in edge]) - deltalength) # total amount of edges - left turns (belongs to two edges) + right turns (no edge). Should be improved if we have points belonging to three edges
+    # ? length(unique(vcat(values(edge)...))) ?
 
 
     pos = startpos
@@ -132,5 +136,6 @@ function _find_cw_border_alloc(ap; outside=false)
 end
 
 # Both functions seem to be equally fast. Expport one of them
+
 find_cw_border = _find_cw_border_alloc
 export find_cw_border

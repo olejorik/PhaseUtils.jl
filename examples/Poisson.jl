@@ -54,12 +54,12 @@ fig
 
 # Next example sets the boundary values for a circular aperture
 
-edge_out = find_cw_border(mask; outside=true)[1]
+edge_out, _ = find_cw_border(mask; outside=true)
 u = zeros(size(mask))
-u[edge_out] .= sin.(range(0, 3 * 2π, length(edge_out) + 1)[1:(end - 1)])
+u[edge_out] .= sin.(range(0, 4 * 2π, length(edge_out) + 1)[1:(end - 1)])
 heatmap(u; axis=(aspect=DataAspect(),))
 
-membrane_sor!(u, zeros(size(u)), mask)
+membrane_sor!(u, zeros(size(u)), mask; maxits=1000)
 fig, ax, hm = heatmap(u .* ap2mask(mask); axis=(aspect=DataAspect(),))
 contour!(u; labels=true, levels=-0.9:0.1:0.9, labelsize=15, color=:white)
 fig
