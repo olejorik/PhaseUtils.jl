@@ -85,7 +85,25 @@ function unwrap_LS(phase, ap; restore_piston=true)
     ph_b = phase_0[cw_cont_ap]
     # ph_r = itoh(ph_b) # this is valid only for consistent case
     # in a general case, use the least-squares approach
-    ph_r = unwrap_contour_LS(ph_b)
+    # ph_r = unwrap_contour_LS(ph_b)
+    #
+    # Unwrap phase on the boundary with correction for the residues
+    #
+    ph_r = copy(ph_b) #
+    posx, posy, resmap = getresmapsparce(phase_0) # get all residues
+    # @info "$(length(resmap)) residues found)"
+    inrescount = 0
+    for (px, py, r) in zip(posx, posy, resmap)
+        if inner_res(px, py, ap)
+            correction(ind) = ideal_residue(Tuple(ind)..., px, py)
+            ph_r .-= r * correction.(cw_cont_ap)
+            inrescount += 1
+        end
+    end
+    # ph_r .= itoh(ph_r)
+    ph_r = unwrap_contour_LS(ph_r)
+    @info "$inrescount ineternal residues corrected for contour unwrapping"
+
 
     # Substite in the gradients the values calculated on the edges with the real ones
 
@@ -127,7 +145,7 @@ function unwrap_contour_LS(phase; restore_piston=false)
 
     if restore_piston
         piston = sum(phase) / length(phase)
-        sol .+= piston # the mean of the restored phase is equa to the mean of the wrapped phase
+        sol .+= piston # the mean of the restored phase is equal to the mean of the wrapped phase
     end
 
     return sol
@@ -169,4 +187,14 @@ function getresmapsparce(phase)
         end
     end
     return posx, posy, resmap
+end
+
+function inner_res(posx, posy, ap)
+    x = Int(posx - 0.5)
+    y = Int(posy - 0.5)
+    return all(Bool[ap[x, y], ap[x + 1, y], ap[x, y + 1], ap[x + 1, y + 1]])
+end
+
+function ideal_residue(x, y, resx, resy)
+    return atan(y - resy, x - resx)
 end

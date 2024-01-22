@@ -78,9 +78,11 @@ equalizemissing(a) = replace(x -> ismissing(x) ? missing : 1, a)
 missingtobinary(a) = missingtozeros(equalizemissing(a))
 
 """
-    circlemask!(a::Matrix{<:Number}, cx, cy, r)
+    circlemask!(a::Matrix{<:Number}, [cx, cy,] r)
 
 Set to zero values of matrix `a` outside the circle with center (`cx`,`cy`) and radius `r`.
+
+If omitted, (`cx`,`cy`) is the center of the matrix.
 """
 function circlemask!(a::Matrix{<:Number}, cx, cy, r)
     for i in eachindex(IndexCartesian(), a)
@@ -89,12 +91,19 @@ function circlemask!(a::Matrix{<:Number}, cx, cy, r)
     return nothing
 end
 
+function circlemask!(a::Matrix{<:Number}, r)
+    cx, cy = size(a) ./ 2 .+ 0.5
+    return circlemask!(a, cx, cy, r)
+end
+
 """
     circlemask(dims::NTuple{2, Int}, cx, cy, r)
 
 Create a boolean matrix of size `dims` with `true` only inside the circle with center (`cx`,`cy`) and radius `r`.
 
-## Example
+If omitted, (`cx`,`cy`) is the center of the domain: `(dims+1)/2`.
+
+## Examples
 ```julia
 julia> circlemask((6,8), 2.5,3, 1.5)
 6×8 Matrix{Bool}:
@@ -104,11 +113,24 @@ julia> circlemask((6,8), 2.5,3, 1.5)
  0  0  1  0  0  0  0  0
  0  0  0  0  0  0  0  0
  0  0  0  0  0  0  0  0
+
+julia> circlemask((10,10), 3)
+10×10 Matrix{Bool}:
+ 0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0
+ 0  0  0  1  1  1  1  0  0  0
+ 0  0  1  1  1  1  1  1  0  0
+ 0  0  1  1  1  1  1  1  0  0
+ 0  0  1  1  1  1  1  1  0  0
+ 0  0  1  1  1  1  1  1  0  0
+ 0  0  0  1  1  1  1  0  0  0
+ 0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0
 ```
 """
-function circlemask(dims::NTuple{2,Int}, cx, cy, r)
+function circlemask(dims::NTuple{2,Int}, args...)
     a = ones(Bool, dims)
-    circlemask!(a, cx, cy, r)
+    circlemask!(a, args...)
     return a
 end
 
