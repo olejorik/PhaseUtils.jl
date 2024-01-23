@@ -96,6 +96,53 @@ delete!(leg)
 axislegend(ax)
 fig
 
-# # Conclusions
+# ## Conclusions
 #
 # It works as expected.
+#
+#
+#
+#
+#
+#
+#
+#
+# # Dual and half-dual grids
+#
+# Fro Talmi-Ribak's method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels).
+# Here is a straightforward approach.
+#
+function dual_region(ap)
+    dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
+    for ind in eachindex(IndexCartesian(), ap)
+        if ap[ind]
+            if ap[ind + CartesianIndex(1, 0)] #two horisontal neighbours (i,j) and (i+1,j)
+                dualap[ind + CartesianIndex(1, 0)] = 1 # (i+1/2,j-1/2)
+                dualap[ind + CartesianIndex(1, 1)] = 1 # (i+1/2,j+1/2)
+            end
+            if ap[ind + CartesianIndex(0, 1)] #two vertical neighbours (i,j) and (i,j+1)
+                dualap[ind + CartesianIndex(0, 1)] = 1 # (i-1/2,j+1/2)
+                dualap[ind + CartesianIndex(1, 1)] = 1 # (i+1/2,j+1/2)
+            end
+        end
+    end
+    return dualap
+end
+
+function dualcoordmin(ind)
+    return ind.I .- 0.5
+end
+function dualcoordplus(ind)
+    return ind.I .+ 0.5
+end
+#
+# Plot the ap and its dual
+#
+fig, ax, hm = arraydisplay(ap; colormap=:reds, alpha=0.25);
+dualap = dual_region(ap)
+cwborder, _ = PhaseUtils._find_cw_border_alloc(dualap)
+scatter!(dualcoordmin.(findall(dualap)); marker='+', color=:blue, label="dual region")
+scatter!(map(dualcoordmin, cwborder); color=:blue, marker='□', label="dual contour")
+leg = axislegend(ax)
+ax.title = "Detected dual region and its border"
+fig
