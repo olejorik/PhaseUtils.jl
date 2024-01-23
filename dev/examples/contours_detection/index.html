@@ -60,4 +60,33 @@ fig</code></pre><img src="23731b44.png" alt="Example block output"/><p>We can no
 scatter!(map(Tuple, cwborder); marker=&#39;o&#39;, color=:black, label=&quot;Contour&quot;)
 delete!(leg)
 axislegend(ax)
-fig</code></pre><img src="fb013e75.png" alt="Example block output"/><h1 id="Conclusions"><a class="docs-heading-anchor" href="#Conclusions">Conclusions</a><a id="Conclusions-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusions" title="Permalink"></a></h1><p>It works as expected.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Monday 22 January 2024 16:52">Monday 22 January 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="fb013e75.png" alt="Example block output"/><h2 id="Conclusions"><a class="docs-heading-anchor" href="#Conclusions">Conclusions</a><a id="Conclusions-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusions" title="Permalink"></a></h2><p>It works as expected.</p><h1 id="Dual-and-half-dual-grids"><a class="docs-heading-anchor" href="#Dual-and-half-dual-grids">Dual and half-dual grids</a><a id="Dual-and-half-dual-grids-1"></a><a class="docs-heading-anchor-permalink" href="#Dual-and-half-dual-grids" title="Permalink"></a></h1><p>Fro Talmi-Ribak&#39;s method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels). Here is a straightforward approach.</p><pre><code class="language-julia hljs">function dual_region(ap)
+    dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
+    for ind in eachindex(IndexCartesian(), ap)
+        if ap[ind]
+            if ap[ind + CartesianIndex(1, 0)] #two horisontal neighbours (i,j) and (i+1,j)
+                dualap[ind + CartesianIndex(1, 0)] = 1 # (i+1/2,j-1/2)
+                dualap[ind + CartesianIndex(1, 1)] = 1 # (i+1/2,j+1/2)
+            end
+            if ap[ind + CartesianIndex(0, 1)] #two vertical neighbours (i,j) and (i,j+1)
+                dualap[ind + CartesianIndex(0, 1)] = 1 # (i-1/2,j+1/2)
+                dualap[ind + CartesianIndex(1, 1)] = 1 # (i+1/2,j+1/2)
+            end
+        end
+    end
+    return dualap
+end
+
+function dualcoordmin(ind)
+    return ind.I .- 0.5
+end
+function dualcoordplus(ind)
+    return ind.I .+ 0.5
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">dualcoordplus (generic function with 1 method)</code></pre><p>Plot the ap and its dual</p><pre><code class="language-julia hljs">fig, ax, hm = arraydisplay(ap; colormap=:reds, alpha=0.25);
+dualap = dual_region(ap)
+cwborder, _ = PhaseUtils._find_cw_border_alloc(dualap)
+scatter!(dualcoordmin.(findall(dualap)); marker=&#39;+&#39;, color=:blue, label=&quot;dual region&quot;)
+scatter!(map(dualcoordmin, cwborder); color=:blue, marker=&#39;□&#39;, label=&quot;dual contour&quot;)
+leg = axislegend(ax)
+ax.title = &quot;Detected dual region and its border&quot;
+fig</code></pre><img src="7868f214.png" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Tuesday 23 January 2024 16:21">Tuesday 23 January 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
