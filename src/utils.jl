@@ -20,9 +20,10 @@ dotproduct(a, b) = sum([xa .* xb for (xa, xb) in zip(a, b)])
 maskedrmse(a, binmask) = sqrt(sum(abs2, a .* binmask) / sum(binmask))
 maskedrmse(a, b, binmask) = maskedrmse(a .- b, binmask)
 
-function maskedphasermse(a, b, binmask)
-    return sqrt(sum(abs2, phwrap.((a .- b) .* binmask)) / sum(binmask))
+function maskedphasermse(a, binmask)
+    return sqrt(sum(abs2, phwrap.(a .* binmask)) / sum(binmask))
 end
+maskedphasermse(a, b, binmask) = maskedphasermse(a .- b, binmask)
 
 """
     ap2mask(ap)

@@ -109,7 +109,7 @@ fig
 #
 # # Dual and half-dual grids
 #
-# Fro Talmi-Ribak's method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels).
+# For Talmi-Ribak's method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels).
 # Here is a straightforward approach.
 #
 function dual_region(ap)
@@ -136,11 +136,40 @@ function dualcoordplus(ind)
     return ind.I .+ 0.5
 end
 #
-# Plot the ap and its dual
+# Plot the ap and its dual region.
 #
 fig, ax, hm = arraydisplay(ap; colormap=:reds, alpha=0.25);
 dualap = dual_region(ap)
 cwborder, _ = PhaseUtils._find_cw_border_alloc(dualap)
+scatter!(dualcoordmin.(findall(dualap)); marker='+', color=:blue, label="dual region")
+scatter!(map(dualcoordmin, cwborder); color=:blue, marker='□', label="dual contour")
+leg = axislegend(ax)
+ax.title = "Detected dual region and its border"
+fig
+
+# # Alternative approach
+#
+# Alternative approach would be to look where the residue can be defined, and this mean all 4 pixels surroundg the dual vertex should be in the aperture.
+# This is equivalent to covolution  with a  box 2x2.
+
+function dual_region_box(ap)
+    dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
+    # dualap[1:(end - 1), 1:(end - 1)] .= ap
+    for ind in eachindex(IndexCartesian(), dualap[2:(end - 1), 2:(end - 1)])
+        dualap[ind] =
+            ap[ind] &&
+            ap[ind - CartesianIndex(1, 1)] &&
+            ap[ind - CartesianIndex(1, 0)] &&
+            ap[ind - CartesianIndex(0, 1)]
+    end
+    return dualap
+end
+
+# Plot the ap and its dual region.
+#
+fig, ax, hm = arraydisplay(ap; colormap=:reds, alpha=0.25);
+dualap = dual_region_box(ap)
+cwborder, _ = PhaseUtils._find_cw_border_alloc(dualap; outside=true)
 scatter!(dualcoordmin.(findall(dualap)); marker='+', color=:blue, label="dual region")
 scatter!(map(dualcoordmin, cwborder); color=:blue, marker='□', label="dual contour")
 leg = axislegend(ax)

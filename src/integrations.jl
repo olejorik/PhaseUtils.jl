@@ -4,14 +4,14 @@
 
 TBW
 """
-function integrate_2dgrad(gx, gy, ::LeastSquares, gradmethod=default_grad_method(gx))
-    GX = fft(gx)
-    GY = fft(gy)
+function integrate_2dgrad(g1, g2, ::LeastSquares, gradmethod=default_grad_method(g1))
+    G1 = fft(g1)
+    G2 = fft(g2)
 
-    kxx = _grad_kernel(gx, 2, gradmethod)
-    kyy = _grad_kernel(gy, 1, gradmethod)
+    k11 = _grad_kernel(g1, 1, gradmethod)
+    k22 = _grad_kernel(g2, 2, gradmethod)
 
-    solfft = (GX .* conj(kxx) .+ GY .* conj(kyy)) ./ (abs2.(kxx) .+ abs2.(kyy))
+    solfft = (G1 .* conj(k11) .+ G2 .* conj(k22)) ./ (abs2.(k11) .+ abs2.(k22))
     solfft[1, 1] = 0
 
     return real(ifft(solfft))

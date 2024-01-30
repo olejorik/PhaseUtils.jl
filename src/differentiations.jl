@@ -65,7 +65,7 @@ end
 function _grad_kernel(a, i, ::FiniteDifferencesCyclic)
     _dim = ones(Int, ndims(a))
     _dim[i] = size(a)[i]
-    return 1 .- reshape(exp.(-2π .* im .* fftfreq(size(a)[i])), Tuple(_dim))
+    return -1 .+ reshape(exp.(2π .* im .* fftfreq(size(a)[i])), Tuple(_dim))
 end
 
 _grad_kernel(a, i) = _grad_kernel(a, i, default_grad_method(a))

@@ -36,6 +36,12 @@ ph_itoh = reshape(itoh(resp_wr[:]), size(resp_wr))
 arraydisplay(ph_itoh)
 
 # Phases occurring in real life are usually a little bit more complicated.
+# Below are two simple illustrations.
+#
+#
+#
+# ### Finite region with non-zero boundary
+#
 # First of all, they are often defined only in some region ``Ω``, and do not zero out on the boundary of the region ``∂Ω```.
 # This is simulated below by adding some linear tilt to the phase.
 
@@ -47,7 +53,7 @@ phasedisplay(resp_wr .* ap2mask(mask))
 # Here is what happens if we subtract the (exactly known) tilt from our new wrapped phase
 
 phasedisplay((resp_wr .- tilt) .* ap2mask(mask))
-
+phasedisplay(resp_wr .* ap2mask(mask))
 #
 
 #
@@ -61,12 +67,45 @@ phasedisplay(phwrap(ph_itoh .- tilt) .* ap2mask(mask))
 phi_LS = unwrap_LS(resp_wr, mask)
 arraydisplay((phi_LS .- tilt) .* ap2mask(mask))
 
-# ## Example with wedge
-wedge = mask .* linearphase((300, 300), 150, 150, 0.0, 0.2)
+# ### Small noise
+#
+# The straightforward unwrapping becomes impossible if value of one pixel has jumped to approximately on π radians (for instance, due to a broken pixel).
+# You can hardly see the difference.
+addpi!(arr, r, c) = (arr[r, c] = phwrap(arr[r, c] + π))
+
+resp_wr = phwrap(resp)
+addpi!(resp_wr, 100, 100)
+phasedisplay(resp_wr .* ap2mask(mask))
+
+# Try to unwrap it:
+ph_itoh = reshape(itoh(resp_wr[:]), size(resp_wr))
+arraydisplay((ph_itoh) .* mask)
+
+# and we see that one pixel made the unwrapping impossible, because a spurious phase jump on 2π appeared on passing the broken pixel.
+# But we can unwrap it with the least-squares algorithm:
+resp_LS = unwrap_LS(resp_wr, mask; restore_piston=true)
+fig, ax, hm = arraydisplay(resp_LS);
+Colorbar(fig[1, 2], hm)
+fig |> display
+
+
+
+
+
+
+
+
+
+
+
+
+
+## ## Example with wedge
+wedge = mask .* linearphase((300, 300), 150, 150, 0.2, 0.11)
 fig, ax, hm = arraydisplay(wedge)
 Colorbar(fig[1, 2], hm)
 ax.title = "Original wedge"
-fig
+fig |> display
 
 wedge_wr = phwrap(wedge)
 phasedisplay(wedge_wr)
@@ -76,44 +115,50 @@ wedge_itoh = reshape(itoh(wedge_wr[:]), size(wedge_wr))
 fig, ax, hm = arraydisplay(wedge_itoh)
 Colorbar(fig[1, 2], hm)
 ax.title = "RMS error is $(maskedrmse(wedge_itoh, wedge, mask))"
-fig
+fig |> display
 
 # Nor it's possible to do this using Itoh's algorithm along the rows.
 wedge_itoh = reshape(itoh(wedge_wr'[:]), size(wedge_wr))'
 fig, ax, hm = arraydisplay(wedge_itoh)
 Colorbar(fig[1, 2], hm)
 ax.title = "RMS error is $(maskedrmse(wedge_itoh, wedge, mask))"
-fig
+fig |> display
 
-# But we can unwrap it with the least-squares algorithm
-wedge_LS = unwrap_LS(wedge_wr, mask)
-fig, ax, hm = arraydisplay(wedge_LS)
+# But we can unwrap it with the least-squares algorithm (up to an integer multiple of 2π, which we calculate here as the value of the error at the central pixel)
+wedge_LS = unwrap_LS(wedge_wr, mask; restore_piston=true)
+piston = wedge_LS[150, 150] - wedge[150, 150]
+wedge_LS .-= piston
+fig, ax, hm = arraydisplay(wedge_LS);
 Colorbar(fig[1, 2], hm)
-fig
+fig |> display
 
 # Compare with the original wedge:
 fig, ax, hm = arraydisplay((wedge_LS .- wedge))
 Colorbar(fig[1, 2], hm)
 ax.title = "RMS error is $(maskedrmse(wedge_LS, wedge, mask))"
-fig
+fig |> display
 
 # ## Unwrapping of the phase with residues
-# Let us add some bad pixels to the wrapped wedge
+# Let us add some bad pixel groups to the wrapped wedge
 resblock!(arr, r, c) = (arr[c:(c + 1), r:(r + 1)] .= [0 π/2; -π/2 π])
 resblock!(wedge_wr, 100, 110)
 resblock!(wedge_wr, 50, 150)
 resblock!(wedge_wr, 130, 130)
 
+# And add 1 π to some pixels
+addpi!(wedge_wr, 200, 200)
+addpi!(wedge_wr, 40, 180)
+
 fig, ax, hm = phasedisplay(wedge_wr)
 ax.title = "RMS error with the original phase is $(maskedrmse(wedge_wr, phwrap(wedge), mask))"
-fig
+fig |> display
 
 # It's still impossible to unwrap it with the Itoh algorithm, but now the error is of a different type
 wedge_itoh = reshape(itoh(wedge_wr[:]), size(wedge_wr))
 fig, ax, hm = arraydisplay(wedge_itoh)
 ax.title = "RMS error is $(maskedrmse(wedge_itoh, wedge, mask))"
 Colorbar(fig[1, 2], hm)
-fig
+fig |> display
 
 
 # Nor it's possible to do this using Itoh's algorithm along the rows.
@@ -121,16 +166,17 @@ wedge_itoh = reshape(itoh(wedge_wr'[:]), size(wedge_wr))'
 fig, ax, hm = arraydisplay(wedge_itoh)
 ax.title = "RMS error is $(maskedrmse(wedge_itoh, wedge, mask))"
 Colorbar(fig[1, 2], hm)
-fig
+fig |> display
 
 # But we can unwrap it with the least-squares algorithm
-wedge_LS = unwrap_LS(wedge_wr, mask)
+wedge_LS = unwrap_LS(wedge_wr, mask; restore_piston=true)
+wedge_LS .-= piston
 fig, ax, hm = arraydisplay(wedge_LS)
 Colorbar(fig[1, 2], hm)
-fig
+fig |> display
 
 # Compare with the original wedge:
 fig, ax, hm = arraydisplay(ap2mask(mask) .* (wedge_LS .- wedge))
 ax.title = "RMS error is $(maskedrmse(wedge_LS, wedge, mask))"
 Colorbar(fig[1, 2], hm)
-fig
+fig |> display
