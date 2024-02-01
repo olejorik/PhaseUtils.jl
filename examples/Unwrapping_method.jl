@@ -48,7 +48,9 @@ function show_grad(gr, label)
     ax.title = "Second component of the gradient $label"
     rowsize!(fig.layout, 1, Aspect(1, 1.0))
     resize_to_layout!(fig)
-    return fig |> display
+    return fig
+    #
+
 end
 
 function show_res!(ax, posx, posy, resmap)
@@ -116,7 +118,9 @@ show_res!(posx, posy, resmap) = show_res!(current_axis(), posx, posy, resmap)
 fig, ax, hm = hmap(phm)
 show_res!(posx, posy, resmap)
 ax.title = "$(length(resmap)) residue(s) found"
-fig |> display
+fig
+#
+
 
 # ### Build and solve the Poisson equation for the correction potential
 dualap = dual_region_box(ap)
@@ -131,13 +135,17 @@ end
 fig, ax, hm = hmap(rho);
 heatmap!(ax, ap2mask(1 .- dualap_inside); colormap=:blues)
 ax.title = "region and residues on the dual grid"
-fig |> display
+fig
+#
+
 
 corr_pot = membrane_sor(rho, dualap_inside)
 fig, ax, hm = hmap(corr_pot .* ap2mask(dualap));
 ax.title = "Correcting potential"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 # Calculate the gradient of the correction potential and covert them to the correction field
 
@@ -159,7 +167,9 @@ dyx, dyy = get_grad(phiy)
 fig, ax, hm = hmap(dxy - dyx);
 ax.title = "mixed derivative after correction"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 # ### Integration of the consisten gradient field in the aperture
 #
@@ -209,22 +219,30 @@ arrows!(edgepos, 0.5edgedirs; color=:white)
 scatterlines!(edgepos; color=:white)
 ax.title = "GT phase and aperture contour"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 scatter!(edgepos; color=edgeval, markersize=7.5, colorrange=lims)
 ax.title = "GT phase and unwrapped phase on the aperture contour"
-fig |> display
+fig
+#
+
 
 # Now let's replace in the gradients all element corresponding to the "left" edge (that is `[0,-1]` orientation) with the values of the restored aperture
 scatter!(ci2Point.(apedge[:left]) .- Ref([0, 0.3]); marker='↓', color=:red)
-fig |> display
+fig
+#
+
 
 # These points we want to update
 ind = apedge[:left] .+ Ref(CartesianIndex(0, -1))
 
 fig, ax, hm = hmap(phiy)
 scatter!(ci2Point.(ind); marker='O', color=:red)
-fig |> display
+fig
+#
+
 
 # Create dictionary to make replacement easier
 #
@@ -238,7 +256,9 @@ ind = apedge[:right] .+ Ref(CartesianIndex(0, 0))
 
 fig, ax, hm = hmap(phiy)
 scatter!(ci2Point.(ind); marker='O', color=:red)
-fig |> display
+fig
+#
+
 
 
 phiy[ind] .= -getindex.(Ref(edgedict), apedge[:right])
@@ -248,7 +268,9 @@ ind = apedge[:up] .+ Ref(CartesianIndex(-1, 0))
 
 fig, ax, hm = hmap(phix)
 scatter!(ci2Point.(ind); marker='O', color=:red)
-fig |> display
+fig
+#
+
 
 
 phix[ind] .= getindex.(Ref(edgedict), apedge[:up])
@@ -257,7 +279,9 @@ ind = apedge[:down]
 
 fig, ax, hm = hmap(phix)
 scatter!(ci2Point.(ind); marker='O', color=:red)
-fig |> display
+fig
+#
+
 
 
 phix[ind] .= -getindex.(Ref(edgedict), apedge[:down])
@@ -285,13 +309,17 @@ gradres = PhaseUtils.getresmap(phixcirc, phiycirc)
 fig, ax, hm = hmap(gradres);
 ax.title = "Divergence of the corrected field"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 ph_sum = circshift(reshape(cumsum(phixcirc[:]), size(ph)), 1)
 fig, ax, hm = hmap(ph_sum)
 ax.title = "Restored  by direct summation phase"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 #  And we can calcualte the rotational component
 
@@ -299,7 +327,9 @@ rot_comp = phwrap(phm - ph_sum)
 fig, ax, hm = hmap(rot_comp .* mask)
 ax.title = "Rotational component"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 
 
@@ -311,13 +341,16 @@ phi = circshift(
 fig, ax, hm = hmap(phi)
 ax.title = "Restored phase with LS method"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
+
 
 # Now the region outside the boundary is  flat
 fig, ax, hm = hmap(phi .* mask)
 ax.title = "Restored phase with LS method"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
 
 
 # This method is now realized as `_unwrap_LS_Poisson` and is called by default by `unwrap_LS`
@@ -325,4 +358,5 @@ phm_un = unwrap_LS(phm, ap; restore_piston=true)
 fig, ax, hm = hmap(phm_un .* mask);
 ax.title = "Restored phase with PhaseUtils method"
 Colorbar(fig[1, 2], hm)
-fig |> display
+fig
+#
