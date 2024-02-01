@@ -146,7 +146,7 @@ function _unwrap_LS_Poisson(phase, ap; restore_piston=false)
     get_grad(arr) = PhaseUtils._calculate_gradient(arr, diffmeth)
 
     # Calculate wrapped gradients
-
+    ap = Bool.(ap)
     mask = ap2mask(ap)
     phm = phase .* mask
     g = (g1, g2) = phwrap(get_grad(phm))
@@ -212,7 +212,7 @@ function _unwrap_LS_Poisson(phase, ap; restore_piston=false)
     # We'll inegrate using Finite difference cyclic, for this we need to append (prepend?) a raw and a column of zeroes
     # phixcirc = vcat(zeros(size(ph, 1))', phix)
     # phiycirc = hcat(zeros(size(ph, 1)), phiy)
-    phixcirc = vcat(phix, zeros(size(phm, 1))')
+    phixcirc = vcat(phix, zeros(size(phm, 2))')
     phiycirc = hcat(phiy, zeros(size(phm, 1)))
 
 
@@ -228,7 +228,7 @@ function _unwrap_LS_Poisson(phase, ap; restore_piston=false)
 end
 
 function unwrap_contour_LS(phase; restore_piston=false)
-    wg = phwrap(phase .- circshift(phase, 1))
+    wg = phwrap(circshift(phase, -1) .- phase)
 
     sol = integrate_periodic_grad(wg)
 

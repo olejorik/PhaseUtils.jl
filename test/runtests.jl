@@ -53,8 +53,8 @@ using Test
         wedge_ap = [m < i < s1 - m && 25 < j < s2 - m for i in 1:s1, j in 1:s2]
         wedge .*= wedge_ap
         wedge .-= sum(wedge) / sum(wedge_ap) #extract mean
-        sol = unwrap_LS(phwrap(wedge), wedge_ap; restore_piston=false)
-        sol .-= sum(sol) / sum(wedge_ap) #extract mean
+        sol = unwrap_LS(phwrap(wedge), wedge_ap; restore_piston=true)
+        sol .-= (sol[70, 50] - wedge[70, 50]) #extract 2kπ piston
         @test maskedrmse(sol, wedge, wedge_ap) / sum(wedge_ap) < 1e-16
 
         @test itoh(phwrap(1:100)) == 1:100
