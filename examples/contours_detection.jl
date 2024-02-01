@@ -154,7 +154,6 @@ fig
 
 function dual_region_box(ap)
     dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
-    # dualap[1:(end - 1), 1:(end - 1)] .= ap
     for ind in eachindex(IndexCartesian(), dualap[2:(end - 1), 2:(end - 1)])
         dualap[ind] =
             ap[ind] &&

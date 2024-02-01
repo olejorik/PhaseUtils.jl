@@ -34,7 +34,11 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "About" => "about.md",
-        "Examples" => ["examples/Poisson.md", "examples/Unwrapping.md"],
+        "Examples" => [
+            "examples/Poisson.md",
+            "examples/Unwrapping.md",
+            "examples/Unwrapping_method.md",
+        ],
     ],
 )
 

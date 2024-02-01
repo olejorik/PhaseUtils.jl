@@ -273,7 +273,7 @@ end
 Find residues in the phase, which correspond to the residues in the wrapped phase gradients expressed in 2pi multiples.
 """
 function getresmap(gx, gy)
-    I, J = size(gx, 2), size(gy, 1)
+    I, J = size(gx, 1), size(gy, 2)
     resmap = similar(gx, I - 1, J - 1)
     posx = similar(gx, I - 1, J - 1)
     posy = similar(gx, I - 1, J - 1)
