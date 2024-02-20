@@ -100,8 +100,10 @@ fig
 
 
 
-# ## Example with wedge
+# ## Example with wedge (with zero mean for simplicity of comparison with the restored)
 wedge = mask .* linearphase((300, 300), 150, 150, 0.2, 0.11)
+piston = maskedrmse(wedge, mask)
+wedge .-= piston
 fig, ax, hm = arraydisplay(wedge)
 Colorbar(fig[1, 2], hm)
 ax.title = "Original wedge"
@@ -125,7 +127,7 @@ ax.title = "RMS error is $(maskedrmse(wedge_itoh, wedge, mask))"
 fig
 
 # But we can unwrap it with the least-squares algorithm (up to an integer multiple of 2π, which we calculate here as the value of the error at the central pixel)
-wedge_LS = unwrap_LS(wedge_wr, mask; restore_piston=true)
+wedge_LS = unwrap_LS(wedge_wr, mask; restore_piston=false)
 piston = wedge_LS[150, 150] - wedge[150, 150]
 wedge_LS .-= piston
 fig, ax, hm = arraydisplay(wedge_LS);

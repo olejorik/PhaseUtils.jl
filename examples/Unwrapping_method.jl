@@ -193,7 +193,7 @@ function integrate_along_path(path, gr, x0=0)
 end
 
 function integrate_along_path_cyclic(path, gr)
-    dirs = path .- circshift(path, 1)
+    dirs = circshift(path, -1) .- path
     deltas = zeros(length(path))
     for i in 1:(length(path))
         j = mod1(i + 1, length(path))
@@ -208,7 +208,8 @@ function integrate_along_path_cyclic(path, gr)
 end
 
 
-edgeval = integrate_along_path(cont, [phix, phiy], ph[cont[1]])
+## edgeval = integrate_along_path(cont, [phix, phiy], ph[cont[1]])
+edgeval = integrate_along_path_cyclic(cont, [phix, phiy])
 
 lims = extrema(edgeval)
 

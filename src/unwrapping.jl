@@ -173,7 +173,8 @@ function _unwrap_LS_Poisson(phase, ap; restore_piston=false)
     # edgedirs = ci2Point.(circshift(cont, -1) .- cont)
 
     # unwrap the phase on the boundary
-    edgeval = integrate_along_path(cont, [phix, phiy], phm[cont[1]])
+    # edgeval = integrate_along_path(cont, [phix, phiy], phm[cont[1]])
+    edgeval = integrate_along_path_cyclic(cont, [phix, phiy])
 
 
     # Unwrap phase on the boundary with correction for the residues
@@ -380,7 +381,7 @@ function integrate_along_path(path, gr, x0=0)
 end
 
 function integrate_along_path_cyclic(path, gr)
-    dirs = path .- circshift(path, 1)
+    dirs = circshift(path, -1) .- path
     deltas = zeros(length(path))
     for i in 1:(length(path))
         j = mod1(i + 1, length(path))
