@@ -1,10 +1,22 @@
 
+abstract type GradientIntegration <: Algorithm end
+struct LeastSquares <: GradientIntegration
+    gradmethod::GradientCalculationAlg
+end
+
+struct F1F2 <: GradientIntegration end
+
+
 """
     integrate_2dgrad(gx, gy[, gradmethod=default_grad_method(gx)])
 
 TBW
 """
-function integrate_2dgrad(g1, g2, ::LeastSquares, gradmethod=default_grad_method(g1))
+function integrate_2dgrad(g1, g2, method::LeastSquares)
+
+
+    gradmethod = method.gradmethod
+
     G1 = fft(g1)
     G2 = fft(g2)
 
@@ -17,11 +29,14 @@ function integrate_2dgrad(g1, g2, ::LeastSquares, gradmethod=default_grad_method
     return real(ifft(solfft))
 end
 
-function integrate_2dgrad(gx, gy, method::InverseProblemAlg)
+integrate_2dgrad(g1, g2) = integrate_2dgrad(g1, g2, LeastSquares(default_grad_method(g1)))
+
+function integrate_2dgrad(gx, gy, method::GradientIntegration)
     return error("Implement $(typeof(method)) for gradient integration")
 end
 
-integrate_2dgrad(gx, gy, args...) = integrate_2dgrad(gx, gy, LeastSquares(), args...)
+integrate_2dgrad(gx, gy, method::GradientCalculationAlg) =
+    integrate_2dgrad(gx, gy, LeastSquares(method))
 
 """
     integrate_periodic_grad(g)

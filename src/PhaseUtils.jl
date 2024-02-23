@@ -6,11 +6,10 @@ export bboxview
 export hardthreshold, hardthreshold!, softthreshold
 export circlemask, circlemask!, linearphase
 
-abstract type InverseProblemAlg end
-struct LeastSquares <: InverseProblemAlg end
 
 
 include("utils.jl")
+include("algorithms.jl")
 include("aperture_border.jl")
 include("differentiations.jl")
 include("integrations.jl")

@@ -1,6 +1,33 @@
 # Phase unwrapping algorithms
+#
+#
 
-export itoh, unwrap_LS, getresmap, getresmapsparce
+export itoh, unwrap, unwrap_LS, getresmap, getresmapsparce
+
+abstract type PhaseUnwrappingAlgorithm <: Algorithm end
+
+struct LS{TD,TI}
+    decomposition::TD
+    integration::TI
+end
+
+
+"""
+    unwrap(phase, aperture, method = LS(); restore_piston=false)
+
+Unwrap 2D `phase` defined inside `aperture` using `method`. The values outside the aperture are ignored.
+If the `aperture` argument is omitted, it is calucalated automatically from the values of `phase` array: every pixel with not `NaN` or `missing` value is considered to be inside the aperture.
+
+# Methods
+ - `LS(decomposition, integration)`: uses  the least-squares decomposition of the wrapped gradient of the wrapped phase in the rotor-free and solenodial fields and integration of the rotor-free part.
+    By default:
+    - `Talmi-Ribak` for `decompositon`
+    - `F1F2` for `integration`
+
+"""
+unwrap
+
+
 
 """
     itoh(phi)
@@ -63,7 +90,7 @@ function _itoh(phi)
 end
 
 """
-    unwrap_LS(phase, aperture; restore_piston=true)
+    unwrap_LS(phase, aperture; restore_piston=false)
 
 Unwrap 2D `phase` defined inside `aperture` using the Least-Squares decomposition
 of the wrapped gradient of the wprapped phase in the rotor-free and solenodial field

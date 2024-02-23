@@ -1,4 +1,4 @@
-abstract type GradientCalculationAlg end
+abstract type GradientCalculationAlg <: Algorithm end
 
 struct Fourier <: GradientCalculationAlg end
 struct FiniteDifferences <: GradientCalculationAlg end

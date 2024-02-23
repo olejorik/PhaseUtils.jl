@@ -99,7 +99,7 @@ phgt = linearphase(size(ap), 0, 0, 0.2, 0.7)
 ph = phgt + resphasepixel(ap, [(n + 0.5, n + 1.5)], [])
 phm = ph .* mask
 hmap(ph; axis=(title="Original phase, not masked",)) |> display
-hmap(phm; axis=(title="Origimal phase, masked",)) |> display
+hmap(phm; axis=(title="Original phase, masked",)) |> display
 
 # Calculate gradient of the masked phase
 gr = get_grad(phm)
