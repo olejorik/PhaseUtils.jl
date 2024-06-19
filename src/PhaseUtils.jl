@@ -5,6 +5,7 @@ export phwrap, maskedrmse, maskedphasermse, ap2mask, mask2ap
 export bboxview
 export hardthreshold, hardthreshold!, softthreshold
 export circlemask, circlemask!, linearphase
+export toArray
 
 
 
@@ -16,5 +17,6 @@ include("integrations.jl")
 include("unwrapping.jl")
 include("cropandpad.jl")
 include("imageprocessing.jl")
+include("vectorization.jl")
 
 end

@@ -87,4 +87,22 @@ using Test
         @test crop(2, 2)(a) == [1 4; 2 5]
         @test crop(3)(a) == [4 7 10; 5 8 11; 6 9 12]
     end
+
+    @testset "Vectorization" begin
+        a = rand(1:10, (10, 10))
+        circlemask!(a, 3)
+        a[5, 10] = 1
+        ind = findall(a .> 0)
+        vals = a[ind]
+
+        b = toArray(ind, vals; crop=false)
+        @test all(a[1:8, :] .== b)
+
+        b = toArray(ind, vals; crop=true)
+
+        @test all(a[3:8, 3:end] .== b)
+
+        b = toArray(ind, vals; shift=(0, 1))
+        @test all(a[3:8, 3:end] .== b[:, 2:end])
+    end
 end
