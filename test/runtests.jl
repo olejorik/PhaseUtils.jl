@@ -104,5 +104,12 @@ using Test
 
         b = toArray(ind, vals; shift=(0, 1))
         @test all(a[3:8, 3:end] .== b[:, 2:end])
+
+        anan = Float64.(copy(a))
+        anan[anan .== 0] .= NaN
+        bnan = toArray(ind, vals; shift=(0, 1), defaultel=NaN)
+        anansmall = anan[3:8, 2:end]
+        @test all(anansmall[(!isnan).(anansmall)] .== bnan[(!isnan).(anansmall)]) &&
+            all((isnan).(anansmall) .== (isnan).(bnan))
     end
 end
