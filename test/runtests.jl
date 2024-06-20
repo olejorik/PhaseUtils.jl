@@ -112,4 +112,28 @@ using Test
         @test all(anansmall[(!isnan).(anansmall)] .== bnan[(!isnan).(anansmall)]) &&
             all((isnan).(anansmall) .== (isnan).(bnan))
     end
+
+    @testset "Thresholding" begin
+        a = fill(1, (10, 10))
+        circlemask!(a, 3)
+        mask = copy(a)
+        a .= a .* 10 .- 3
+
+        alg = PhaseUtils.HardThreshold(5)
+        b = PhaseUtils.threshold(a, alg)
+        @test all(mask .* 7 .== b)
+
+        b = PhaseUtils.threshold(a, PhaseUtils.HardThreshold(1.0))
+        @test all(a .== b)
+
+
+        b = PhaseUtils.threshold(a, PhaseUtils.SoftThreshold(5))
+        @test all(mask .* 2 .== b)
+
+        b = PhaseUtils.threshold(a, PhaseUtils.SoftThreshold(1.0))
+        @test all(mask .* 8 .== b .+ 2)
+
+
+
+    end
 end
