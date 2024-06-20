@@ -53,6 +53,8 @@ end
 
 HardThreshold(th) = HardThreshold(th, false)
 
+(alg::HardThreshold)(img) = alg.relative ? alg.th * maximum(img) : alg.th
+
 threshold!(a, alg::HardThreshold) = hardthreshold!(a, alg.th, alg.relative)
 
 struct SoftThreshold{T} <: AbstractThresholdAlg

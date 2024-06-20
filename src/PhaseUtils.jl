@@ -1,6 +1,7 @@
 module PhaseUtils
 using FFTW
 using FileIO
+using Statistics
 
 export phwrap, maskedrmse, maskedphasermse, ap2mask, mask2ap
 export bboxview
