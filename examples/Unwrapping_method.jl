@@ -8,14 +8,24 @@
 
 # # Phase Unwrapping method  explained
 #
-# The method used in this package is based on the Least-Squares integration of the (maybe incosistent) gradient fields defiend in some connected region.
+# The method used in this package is based on the Least-Squares integration of the (maybe inconsistent) gradient fields defined in some connected region.
+#
+# The method is based on a fact for phases satisfying Itoh's condition, that is with phase jumps between two adjacent pixels less than π, the wrapped gradient of the wrapped phase is equal to the true phase gradient.
+# Thus, to unwrap a wrapped noisy phase, one proceeds as follows:
+#  1. Calculate the gradient of the wrapped phase
+# 2. Wrap the result. The obtained vector field might be not integratable, so we shall call it quasi-gradient.
+# 3. Decompose the quasi-gradient into two orthogonal components, the consistent, rotor-free gradient field, and the solenoidal field.
+# 4. Integrated the consistent gradient field to obtain the unwrapped phase.
+#
+#
 
 using PhaseUtils
 using CairoMakie
 CairoMakie.activate!(; type="png")
 
 
-# # First we define several helper functions.
+# ## First we define several helper functions.
+#
 hmap(args...; kwargs...) =
     heatmap(args...; kwargs..., axis=merge((aspect=DataAspect(),), get(kwargs, :axis, (;))))
 
@@ -82,7 +92,8 @@ function dualcoordplus(x, y)
     return CartesianIndex(Int(x + 0.5), Int(y + 0.5))
 end
 
-##
+# ## Generate a test wrapped phase
+#
 # We will do everything on a small resolution example phase.
 
 n = 8
@@ -90,7 +101,9 @@ ap = circlemask((2n, 2n + 1), n, n + 1, n - 2)
 mask = ap2mask(ap)
 hmap(ap)
 
-# Choose `FiniteDifferences` as default method for gradients etc
+# ## (Wrapped) gradient calculation
+
+# Choose `FiniteDifferences` as the default method for gradients etc
 diffmeth = PhaseUtils.FiniteDifferences()
 get_grad(arr) = PhaseUtils._calculate_gradient(arr, diffmeth)
 
@@ -119,6 +132,10 @@ ax.title = "$(length(resmap)) residue(s) found"
 fig
 #
 
+# ## Decomposition of the quasi-gradient field using Talmi-Ribak method
+#
+# The Talmi-Ribak method is based on the calculation of the correction potential --- a minimal norm field that has the same residues as the quasi-gradient field.
+
 
 # ### Build and solve the Poisson equation for the correction potential
 dualap = dual_region_box(ap)
@@ -145,12 +162,12 @@ fig
 #
 
 
-# Calculate the gradient of the correction potential and covert them to the correction field
+# Calculate the gradient of the correction potential and convert it to the correction field
 
 mincy, cx = get_grad(corr_pot)
 show_grad((mincy, cx), "\ncorrection pot-l")
 
-# the correction is the exchanged components
+# The correction filed is formed by swapping the components
 
 show_grad((-cx[2:(end - 1), :], mincy[:, 2:(end - 1)]), "\ncorrector")
 
@@ -159,7 +176,8 @@ phix = g1 + cx[2:(end - 1), :]
 phiy = g2 - mincy[:, 2:(end - 1)]
 show_grad((phix, phiy), "\nCorrected phase")
 
-# The corrected field should be integratable, what we can check by computing the cross derivatives
+
+# The corrected field should be integratable, which we can check by computing the cross-derivatives
 dxx, dxy = get_grad(phix)
 dyx, dyy = get_grad(phiy)
 fig, ax, hm = hmap(dxy - dyx);
@@ -169,7 +187,11 @@ fig
 #
 
 
-# ### Integration of the consisten gradient field in the aperture
+# ## Integration of the consistent gradient field in the aperture
+#
+# For the integration of a consistent gradient defined inside some aperture, the integration operator should be compatible with the differentiation operator.
+#
+# Here, we use a simple method of
 #
 # We start by integrating the corrected gradients along the aperture contour
 cont, apedge = find_cw_border(ap)
@@ -228,7 +250,7 @@ fig
 #
 
 
-# Now let's replace in the gradients all element corresponding to the "left" edge (that is `[0,-1]` orientation) with the values of the restored aperture
+# Now let's replace in the gradients all elements corresponding to the "left" edge (that is `[0,-1]` orientation) with the values of the restored aperture
 scatter!(ci2Point.(apedge[:left]) .- Ref([0, 0.3]); marker='↓', color=:red)
 fig
 #

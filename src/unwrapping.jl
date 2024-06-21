@@ -5,12 +5,17 @@
 export itoh, unwrap, unwrap_LS, getresmap, getresmapsparce
 
 abstract type PhaseUnwrappingAlgorithm <: Algorithm end
+abstract type FieldDecompositionAlgorithm <: Algorithm end
+abstract type FieldIntegrationAlgorithm <: Algorithm end
 
-struct LS{TD,TI}
+struct LS{TD,TI} <: PhaseUnwrappingAlgorithm
     decomposition::TD
     integration::TI
 end
 
+struct TalmiRibak <: FieldDecompositionAlgorithm end
+
+LS() = LS(TalmiRibak(), F1F2())
 
 """
     unwrap(phase, aperture, method = LS(); restore_piston=false)
@@ -27,7 +32,8 @@ If the `aperture` argument is omitted, it is calucalated automatically from the 
 """
 function unwrap end
 
-unwrap(phase, ap, method::LS; kwargs...) = unwrap_LS(phase, ap; kwargs...)
+unwrap(phase, ap, method::PhaseUnwrappingAlgorithm; kwargs...) =
+    method(phase, ap; kwargs...)
 
 
 """
