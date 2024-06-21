@@ -57,7 +57,7 @@ end
 """
     membrane_sor!(u, f::Array{Real}, mask_internal::Array{Bool})
 
-Solves Poisson equation Δ `u` = `f`, with boundary conditions set by `u`(x) for x ∉ `mask_internal` using Successive Overrelaxation method (see Numerical Recipes (www.cambridge.org/9780521880688), ch.20.5.1).
+Solves Poisson equation Δ `u` = `f`, with boundary conditions set by `u`(x) for x ∉ `mask_internal` using Successive Overrelaxation method (see [Numerical Recipes](https://www.cambridge.org/9780521880688), ch.20.5.1).
 """
 function membrane_sor!(u, f::Array, mask_internal::Array{Bool,2}; maxits=1000, tol=1e-6)
 
@@ -118,7 +118,7 @@ end
 """
     membrane_sor(f::Array{Real}, mask_internal::Array{Bool})
 
-Solves Poisson equation Δ `u` = `f`, with boundary conditions `u`(x) = 0 <=> x ∉ `mask_internal` using Successive Overrelaxation method (see Numerical Recipes (www.cambridge.org/9780521880688), ch.20.5.1).
+Solves Poisson equation Δ `u` = `f`, with boundary conditions `u`(x) = 0 <=> x ∉ `mask_internal` using Successive Overrelaxation method (see [Numerical Recipes](https://www.cambridge.org/9780521880688), ch.20.5.1).
 """
 function membrane_sor(f::Array, mask_internal::Array{Bool,2}; kwargs...)
     u = zeros(size(f))

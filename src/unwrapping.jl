@@ -25,8 +25,9 @@ If the `aperture` argument is omitted, it is calucalated automatically from the 
     - `F1F2` for `integration`
 
 """
-unwrap
+function unwrap end
 
+unwrap(phase, ap, method::LS; kwargs...) = unwrap_LS(phase, ap; kwargs...)
 
 
 """
