@@ -14,7 +14,7 @@ function toArray(
     if crop
         startoffset = Tuple(ex[1])
     else
-        startoffset = Tuple(one(T))
+        startoffset = Tuple(oneunit(T))
     end
 
     retsize = Tuple(ex[2]) .- startoffset .+ shift .+ 1
