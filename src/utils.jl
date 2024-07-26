@@ -19,13 +19,13 @@ diffirst(v, i) = [t .- v[i] for t in v[vcat(1:(i - 1), (i + 1):end)]]
 
 dotproduct(a, b) = sum([xa .* xb for (xa, xb) in zip(a, b)])
 
-maskedrmse(a, binmask) = sqrt(sum(abs2, a[binmask]) / sum(binmask))
+maskedrmse(a, binmask) = sqrt(sum(abs2, a[Bool.(binmask)]) / sum(binmask))
 maskedrmse(a, b, binmask) = maskedrmse(a .- b, binmask)
 
 maskedphasermse(a, binmask) = maskedrmse(phwrap(a), binmask)
 maskedphasermse(a, b, binmask) = maskedphasermse(a .- b, binmask)
 
-maskedPV(a, binmask) = (x -> last(x) - first(x))(extrema(a[binmask]))
+maskedPV(a, binmask) = (x -> last(x) - first(x))(extrema(a[Bool.(binmask)]))
 
 """
     ap2mask(ap)
