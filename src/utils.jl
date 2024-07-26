@@ -15,15 +15,17 @@ phwrap(a::AbstractArray) = phwrap.(a)
 phwrap(::Missing) = missing
 
 diffirst(v) = [t .- v[1] for t in v[2:end]]
+diffirst(v, i) = [t .- v[i] for t in v[vcat(1:(i - 1), (i + 1):end)]]
+
 dotproduct(a, b) = sum([xa .* xb for (xa, xb) in zip(a, b)])
 
-maskedrmse(a, binmask) = sqrt(sum(abs2, a .* binmask) / sum(binmask))
+maskedrmse(a, binmask) = sqrt(sum(abs2, a[binmask]) / sum(binmask))
 maskedrmse(a, b, binmask) = maskedrmse(a .- b, binmask)
 
-function maskedphasermse(a, binmask)
-    return sqrt(sum(abs2, phwrap.(a .* binmask)) / sum(binmask))
-end
+maskedphasermse(a, binmask) = maskedrmse(phwrap(a), binmask)
 maskedphasermse(a, b, binmask) = maskedphasermse(a .- b, binmask)
+
+maskedPV(a, binmask) = (x -> last(x) - first(x))(extrema(a[binmask]))
 
 """
     ap2mask(ap)
