@@ -25,5 +25,6 @@ include("unwrapping.jl")
 include("cropandpad.jl")
 include("imageprocessing.jl")
 include("vectorization.jl")
+include("SimpleProjections.jl")
 
 end
