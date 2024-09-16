@@ -30,7 +30,7 @@ maskedPV(a, binmask) = (x -> last(x) - first(x))(extrema(a[Bool.(binmask)]))
 """
     ap2mask(ap)
 
-Converts  `ap` array to mask, so that every zrro is mapped to `NaN` and non-zero elements to 1.
+Converts  `ap` array to mask, so that every zero is mapped to `NaN` and non-zero elements to 1.
 
 See also [`mask2ap`](@ref).
 """
@@ -51,6 +51,18 @@ function mask2ap(mask)
     ap = zero(mask) .+ 1
     ap[isnan.(mask)] .= 0
     return ap
+end
+
+"""
+    binarize(ap)
+
+Converts  `ap` array to a binary array `b`, so that every zero or `NaN` is mapped to 0 and non-zero elements to 1.
+"""
+function binarize(ap)
+    b = ones(Bool, size(ap))
+    b[isnan.(ap)] .= 0
+    b[ap .== 0] .= 0
+    return b
 end
 
 function bboxview(arr)

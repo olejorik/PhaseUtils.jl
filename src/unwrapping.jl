@@ -33,7 +33,7 @@ If the `aperture` argument is omitted, it is calucalated automatically from the 
 function unwrap end
 
 unwrap(phase, ap, method::PhaseUnwrappingAlgorithm; kwargs...) =
-    method(phase, ap; kwargs...)
+    method(phase, binarize(ap); kwargs...)
 
 
 """
