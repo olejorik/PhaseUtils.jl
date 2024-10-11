@@ -104,7 +104,8 @@ of the wrapped gradient of the wprapped phase in the rotor-free and solenodial f
 and integration of the rotor-free part.
 
 """
-unwrap_LS(phase, ap; restore_piston=false) = _unwrap_LS_Poisson(phase, ap; restore_piston)
+unwrap_LS(phase, ap; restore_piston=false) =
+    _unwrap_LS_Poisson(phase, binarize(ap); restore_piston)
 
 function _unwrap_LS_quick(phase, ap; restore_piston=true)
     # Calculate wrapped gradients
