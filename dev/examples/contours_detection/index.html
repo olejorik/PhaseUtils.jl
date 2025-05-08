@@ -14,11 +14,11 @@ for k in keys(edg)
 end
 leg = axislegend(ax)
 ax.title = &quot;Detected edge pixels for inner circle&quot;
-fig</code></pre><img src="feb4e404.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap)
+fig</code></pre><img src="21b5edbb.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap)
 scatter!(map(Tuple, cwborder); marker=&#39;o&#39;, color=:black, label=&quot;Contour&quot;)
 delete!(leg)
 axislegend(ax)
-fig</code></pre><img src="710d8a79.png" alt="Example block output"/><p>Now check the same for the inverse mask</p><pre><code class="language-julia hljs">notap = .!ap
+fig</code></pre><img src="3823063b.png" alt="Example block output"/><p>Now check the same for the inverse mask</p><pre><code class="language-julia hljs">notap = .!ap
 fig, ax, hm = arraydisplay(notap; colormap=:reds, alpha=0.25)
 edg = PhaseUtils._find_set_edges(notap)
 for k in keys(edg)
@@ -28,11 +28,11 @@ for k in keys(edg)
 end
 leg = axislegend(ax)
 ax.title = &quot;Detected edge pixels for outer circle&quot;
-fig</code></pre><img src="534bdc46.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap; outside=true)
+fig</code></pre><img src="98ea5bae.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap; outside=true)
 scatter!(map(Tuple, cwborder); marker=&#39;o&#39;, color=:black, label=&quot;Contour&quot;)
 delete!(leg)
 axislegend(ax)
-fig</code></pre><img src="b9a387d2.png" alt="Example block output"/><h1 id="More-difficult-shapes"><a class="docs-heading-anchor" href="#More-difficult-shapes">More difficult shapes</a><a id="More-difficult-shapes-1"></a><a class="docs-heading-anchor-permalink" href="#More-difficult-shapes" title="Permalink"></a></h1><pre><code class="language-julia hljs">ap = circlemask((40, 22), 10, 11, 8) .|| circlemask((40, 22), 26, 11, 9)
+fig</code></pre><img src="c21a6cf9.png" alt="Example block output"/><h1 id="More-difficult-shapes"><a class="docs-heading-anchor" href="#More-difficult-shapes">More difficult shapes</a><a id="More-difficult-shapes-1"></a><a class="docs-heading-anchor-permalink" href="#More-difficult-shapes" title="Permalink"></a></h1><pre><code class="language-julia hljs">ap = circlemask((40, 22), 10, 11, 8) .|| circlemask((40, 22), 26, 11, 9)
 fig, ax, hm = arraydisplay(ap; colormap=:reds, alpha=0.25)
 edg = PhaseUtils._find_set_edges(ap)
 for k in keys(edg)
@@ -42,11 +42,11 @@ for k in keys(edg)
 end
 leg = axislegend(ax)
 ax.title = &quot;Detected edge pixels for inner edge&quot;
-fig</code></pre><img src="d61d76b5.png" alt="Example block output"/><p>We can now sort all this pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap)
+fig</code></pre><img src="e5d15368.png" alt="Example block output"/><p>We can now sort all this pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap)
 scatter!(map(Tuple, cwborder); marker=&#39;o&#39;, color=:black, label=&quot;Contour&quot;)
 delete!(leg)
 axislegend(ax)
-fig</code></pre><img src="53234054.png" alt="Example block output"/><p>Now check the same for the inverse mask</p><pre><code class="language-julia hljs">notap = .!ap
+fig</code></pre><img src="82195577.png" alt="Example block output"/><p>Now check the same for the inverse mask</p><pre><code class="language-julia hljs">notap = .!ap
 fig, ax, hm = arraydisplay(notap; colormap=:reds, alpha=0.25)
 edg = PhaseUtils._find_set_edges(notap)
 for k in keys(edg)
@@ -56,11 +56,11 @@ for k in keys(edg)
 end
 leg = axislegend(ax)
 ax.title = &quot;Detected edge pixels for outer edge&quot;
-fig</code></pre><img src="a46dee81.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap; outside=true)
+fig</code></pre><img src="e9090235.png" alt="Example block output"/><p>We can now sort all these pixels in a clockwise manner</p><pre><code class="language-julia hljs">cwborder, _ = PhaseUtils._find_cw_border_alloc(ap; outside=true)
 scatter!(map(Tuple, cwborder); marker=&#39;o&#39;, color=:black, label=&quot;Contour&quot;)
 delete!(leg)
 axislegend(ax)
-fig</code></pre><img src="541eb95a.png" alt="Example block output"/><h2 id="Conclusions"><a class="docs-heading-anchor" href="#Conclusions">Conclusions</a><a id="Conclusions-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusions" title="Permalink"></a></h2><p>It works as expected.</p><h1 id="Dual-and-half-dual-grids"><a class="docs-heading-anchor" href="#Dual-and-half-dual-grids">Dual and half-dual grids</a><a id="Dual-and-half-dual-grids-1"></a><a class="docs-heading-anchor-permalink" href="#Dual-and-half-dual-grids" title="Permalink"></a></h1><p>For Talmi-Ribak&#39;s method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels). Here is a straightforward approach.</p><pre><code class="language-julia hljs">function dual_region(ap)
+fig</code></pre><img src="0f57291c.png" alt="Example block output"/><h2 id="Conclusions"><a class="docs-heading-anchor" href="#Conclusions">Conclusions</a><a id="Conclusions-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusions" title="Permalink"></a></h2><p>It works as expected.</p><h1 id="Dual-and-half-dual-grids"><a class="docs-heading-anchor" href="#Dual-and-half-dual-grids">Dual and half-dual grids</a><a id="Dual-and-half-dual-grids-1"></a><a class="docs-heading-anchor-permalink" href="#Dual-and-half-dual-grids" title="Permalink"></a></h1><p>For Talmi-Ribak&#39;s method, I also need to find points on the dual grid that fall within the area and on its boundary (with at least two adjacent pixels). Here is a straightforward approach.</p><pre><code class="language-julia hljs">function dual_region(ap)
     dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
     for ind in eachindex(IndexCartesian(), ap)
         if ap[ind]
@@ -89,7 +89,7 @@ scatter!(dualcoordmin.(findall(dualap)); marker=&#39;+&#39;, color=:blue, label=
 scatter!(map(dualcoordmin, cwborder); color=:blue, marker=&#39;□&#39;, label=&quot;dual contour&quot;)
 leg = axislegend(ax)
 ax.title = &quot;Detected dual region and its border&quot;
-fig</code></pre><img src="3650fd7f.png" alt="Example block output"/><h1 id="Alternative-approach"><a class="docs-heading-anchor" href="#Alternative-approach">Alternative approach</a><a id="Alternative-approach-1"></a><a class="docs-heading-anchor-permalink" href="#Alternative-approach" title="Permalink"></a></h1><p>Alternative approach would be to look where the residue can be defined, and this mean all 4 pixels surroundg the dual vertex should be in the aperture. This is equivalent to covolution  with a  box 2x2.</p><pre><code class="language-julia hljs">function dual_region_box(ap)
+fig</code></pre><img src="b668961f.png" alt="Example block output"/><h1 id="Alternative-approach"><a class="docs-heading-anchor" href="#Alternative-approach">Alternative approach</a><a id="Alternative-approach-1"></a><a class="docs-heading-anchor-permalink" href="#Alternative-approach" title="Permalink"></a></h1><p>Alternative approach would be to look where the residue can be defined, and this mean all 4 pixels surroundg the dual vertex should be in the aperture. This is equivalent to covolution  with a  box 2x2.</p><pre><code class="language-julia hljs">function dual_region_box(ap)
     dualap = zeros(Bool, size(ap) .+ 1) # index i,j corresponds to the point i-1/2,j-1/2
     for ind in eachindex(IndexCartesian(), dualap[2:(end - 1), 2:(end - 1)])
         dualap[ind] =
@@ -106,4 +106,4 @@ scatter!(dualcoordmin.(findall(dualap)); marker=&#39;+&#39;, color=:blue, label=
 scatter!(map(dualcoordmin, cwborder); color=:blue, marker=&#39;□&#39;, label=&quot;dual contour&quot;)
 leg = axislegend(ax)
 ax.title = &quot;Detected dual region and its border&quot;
-fig</code></pre><img src="b8dae1fd.png" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 11 October 2024 14:32">Friday 11 October 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="75b107d4.png" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.2 on <span class="colophon-date" title="Thursday 8 May 2025 08:57">Thursday 8 May 2025</span>. Using Julia version 1.10.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

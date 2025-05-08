@@ -68,21 +68,21 @@ function dualcoordplus(x, y)
 end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">dualcoordplus (generic function with 2 methods)</code></pre><h2 id="Generate-a-test-wrapped-phase"><a class="docs-heading-anchor" href="#Generate-a-test-wrapped-phase">Generate a test wrapped phase</a><a id="Generate-a-test-wrapped-phase-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-a-test-wrapped-phase" title="Permalink"></a></h2><p>We will do everything on a small resolution example phase.</p><pre><code class="language-julia hljs">n = 8
 ap = circlemask((2n, 2n + 1), n, n + 1, n - 2)
 mask = ap2mask(ap)
-hmap(ap)</code></pre><img src="9ae5c758.png" alt="Example block output"/><h2 id="(Wrapped)-gradient-calculation"><a class="docs-heading-anchor" href="#(Wrapped)-gradient-calculation">(Wrapped) gradient calculation</a><a id="(Wrapped)-gradient-calculation-1"></a><a class="docs-heading-anchor-permalink" href="#(Wrapped)-gradient-calculation" title="Permalink"></a></h2><p>Choose <code>FiniteDifferences</code> as the default method for gradients etc</p><pre><code class="language-julia hljs">diffmeth = PhaseUtils.FiniteDifferences()
+hmap(ap)</code></pre><img src="9fac9215.png" alt="Example block output"/><h2 id="(Wrapped)-gradient-calculation"><a class="docs-heading-anchor" href="#(Wrapped)-gradient-calculation">(Wrapped) gradient calculation</a><a id="(Wrapped)-gradient-calculation-1"></a><a class="docs-heading-anchor-permalink" href="#(Wrapped)-gradient-calculation" title="Permalink"></a></h2><p>Choose <code>FiniteDifferences</code> as the default method for gradients etc</p><pre><code class="language-julia hljs">diffmeth = PhaseUtils.FiniteDifferences()
 get_grad(arr) = PhaseUtils._calculate_gradient(arr, diffmeth)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">get_grad (generic function with 1 method)</code></pre><p>Create a test phase with a residue</p><pre><code class="language-julia hljs">phgt = linearphase(size(ap), 0, 0, 0.2, 0.7)
 ph = phgt + resphasepixel(ap, [(n + 0.5, n + 1.5)], [])
 phm = ph .* mask
 hmap(ph; axis=(title=&quot;Original phase, not masked&quot;,)) |&gt; display
 hmap(phm; axis=(title=&quot;Original phase, masked&quot;,)) |&gt; display</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">CairoMakie.Screen{IMAGE}
 </code></pre><p>Calculate gradient of the masked phase</p><pre><code class="language-julia hljs">gr = get_grad(phm)
-show_grad(gr, &quot;\nof the original phase&quot;)</code></pre><img src="7d92684f.png" alt="Example block output"/><p>and wrapped gradient</p><pre><code class="language-julia hljs">g = (g1, g2) = phwrap.(gr)
-show_grad(g, &quot;\nwrapped&quot;)</code></pre><img src="92f6e5c0.png" alt="Example block output"/><p>Find the residues in the phase</p><pre><code class="language-julia hljs">posx, posy, resmap = getresmapsparce(phm)
+show_grad(gr, &quot;\nof the original phase&quot;)</code></pre><img src="951c911f.png" alt="Example block output"/><p>and wrapped gradient</p><pre><code class="language-julia hljs">g = (g1, g2) = phwrap.(gr)
+show_grad(g, &quot;\nwrapped&quot;)</code></pre><img src="a039eadb.png" alt="Example block output"/><p>Find the residues in the phase</p><pre><code class="language-julia hljs">posx, posy, resmap = getresmapsparce(phm)
 
 show_res!(posx, posy, resmap) = show_res!(current_axis(), posx, posy, resmap)
 fig, ax, hm = hmap(phm)
 show_res!(posx, posy, resmap)
 ax.title = &quot;$(length(resmap)) residue(s) found&quot;
-fig</code></pre><img src="d2fc7922.png" alt="Example block output"/><h2 id="Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method"><a class="docs-heading-anchor" href="#Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method">Decomposition of the quasi-gradient field using Talmi-Ribak method</a><a id="Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method-1"></a><a class="docs-heading-anchor-permalink" href="#Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method" title="Permalink"></a></h2><p>The Talmi-Ribak method is based on the calculation of the correction potential –- a minimal norm field that has the same residues as the quasi-gradient field.</p><h3 id="Build-and-solve-the-Poisson-equation-for-the-correction-potential"><a class="docs-heading-anchor" href="#Build-and-solve-the-Poisson-equation-for-the-correction-potential">Build and solve the Poisson equation for the correction potential</a><a id="Build-and-solve-the-Poisson-equation-for-the-correction-potential-1"></a><a class="docs-heading-anchor-permalink" href="#Build-and-solve-the-Poisson-equation-for-the-correction-potential" title="Permalink"></a></h3><pre><code class="language-julia hljs">dualap = dual_region_box(ap)
+fig</code></pre><img src="a8fb999d.png" alt="Example block output"/><h2 id="Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method"><a class="docs-heading-anchor" href="#Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method">Decomposition of the quasi-gradient field using Talmi-Ribak method</a><a id="Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method-1"></a><a class="docs-heading-anchor-permalink" href="#Decomposition-of-the-quasi-gradient-field-using-Talmi-Ribak-method" title="Permalink"></a></h2><p>The Talmi-Ribak method is based on the calculation of the correction potential –- a minimal norm field that has the same residues as the quasi-gradient field.</p><h3 id="Build-and-solve-the-Poisson-equation-for-the-correction-potential"><a class="docs-heading-anchor" href="#Build-and-solve-the-Poisson-equation-for-the-correction-potential">Build and solve the Poisson equation for the correction potential</a><a id="Build-and-solve-the-Poisson-equation-for-the-correction-potential-1"></a><a class="docs-heading-anchor-permalink" href="#Build-and-solve-the-Poisson-equation-for-the-correction-potential" title="Permalink"></a></h3><pre><code class="language-julia hljs">dualap = dual_region_box(ap)
 dualap_inside = copy(dualap)
 
 
@@ -94,19 +94,19 @@ end
 fig, ax, hm = hmap(rho);
 heatmap!(ax, ap2mask(1 .- dualap_inside); colormap=:blues)
 ax.title = &quot;region and residues on the dual grid&quot;
-fig</code></pre><img src="923ec81c.png" alt="Example block output"/><pre><code class="language-julia hljs">corr_pot = membrane_sor(rho, dualap_inside)
+fig</code></pre><img src="526e1386.png" alt="Example block output"/><pre><code class="language-julia hljs">corr_pot = membrane_sor(rho, dualap_inside)
 fig, ax, hm = hmap(corr_pot .* ap2mask(dualap));
 ax.title = &quot;Correcting potential&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="1ee1a929.png" alt="Example block output"/><p>Calculate the gradient of the correction potential and convert it to the correction field</p><pre><code class="language-julia hljs">mincy, cx = get_grad(corr_pot)
-show_grad((mincy, cx), &quot;\ncorrection pot-l&quot;)</code></pre><img src="bf29ad71.png" alt="Example block output"/><p>The correction filed is formed by swapping the components</p><pre><code class="language-julia hljs">show_grad((-cx[2:(end - 1), :], mincy[:, 2:(end - 1)]), &quot;\ncorrector&quot;)</code></pre><img src="8c5684be.png" alt="Example block output"/><p>Now we can subtract them</p><pre><code class="language-julia hljs">phix = g1 + cx[2:(end - 1), :]
+fig</code></pre><img src="34d304b3.png" alt="Example block output"/><p>Calculate the gradient of the correction potential and convert it to the correction field</p><pre><code class="language-julia hljs">mincy, cx = get_grad(corr_pot)
+show_grad((mincy, cx), &quot;\ncorrection pot-l&quot;)</code></pre><img src="d4ef393e.png" alt="Example block output"/><p>The correction filed is formed by swapping the components</p><pre><code class="language-julia hljs">show_grad((-cx[2:(end - 1), :], mincy[:, 2:(end - 1)]), &quot;\ncorrector&quot;)</code></pre><img src="0c80d15f.png" alt="Example block output"/><p>Now we can subtract them</p><pre><code class="language-julia hljs">phix = g1 + cx[2:(end - 1), :]
 phiy = g2 - mincy[:, 2:(end - 1)]
-show_grad((phix, phiy), &quot;\nCorrected phase&quot;)</code></pre><img src="5c641fd8.png" alt="Example block output"/><p>The corrected field should be integratable, which we can check by computing the cross-derivatives</p><pre><code class="language-julia hljs">dxx, dxy = get_grad(phix)
+show_grad((phix, phiy), &quot;\nCorrected phase&quot;)</code></pre><img src="a7371c0b.png" alt="Example block output"/><p>The corrected field should be integratable, which we can check by computing the cross-derivatives</p><pre><code class="language-julia hljs">dxx, dxy = get_grad(phix)
 dyx, dyy = get_grad(phiy)
 fig, ax, hm = hmap(dxy - dyx);
 ax.title = &quot;mixed derivative after correction&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="bfb73c8d.png" alt="Example block output"/><h2 id="Integration-of-the-consistent-gradient-field-in-the-aperture"><a class="docs-heading-anchor" href="#Integration-of-the-consistent-gradient-field-in-the-aperture">Integration of the consistent gradient field in the aperture</a><a id="Integration-of-the-consistent-gradient-field-in-the-aperture-1"></a><a class="docs-heading-anchor-permalink" href="#Integration-of-the-consistent-gradient-field-in-the-aperture" title="Permalink"></a></h2><p>For the integration of a consistent gradient defined inside some aperture, the integration operator should be compatible with the differentiation operator.</p><p>Here, we use a simple method of</p><p>We start by integrating the corrected gradients along the aperture contour</p><pre><code class="language-julia hljs">cont, apedge = find_cw_border(ap)
+fig</code></pre><img src="a9042182.png" alt="Example block output"/><h2 id="Integration-of-the-consistent-gradient-field-in-the-aperture"><a class="docs-heading-anchor" href="#Integration-of-the-consistent-gradient-field-in-the-aperture">Integration of the consistent gradient field in the aperture</a><a id="Integration-of-the-consistent-gradient-field-in-the-aperture-1"></a><a class="docs-heading-anchor-permalink" href="#Integration-of-the-consistent-gradient-field-in-the-aperture" title="Permalink"></a></h2><p>For the integration of a consistent gradient defined inside some aperture, the integration operator should be compatible with the differentiation operator.</p><p>Here, we use a simple method of</p><p>We start by integrating the corrected gradients along the aperture contour</p><pre><code class="language-julia hljs">cont, apedge = find_cw_border(ap)
 ci2Point(ci) = Point(ci.I)
 edgepos = ci2Point.(cont)
 edgedirs = ci2Point.(circshift(cont, -1) .- cont)
@@ -152,14 +152,14 @@ arrows!(edgepos, 0.5edgedirs; color=:white)
 scatterlines!(edgepos; color=:white)
 ax.title = &quot;GT phase and aperture contour&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="3e65e37c.png" alt="Example block output"/><pre><code class="language-julia hljs">scatter!(edgepos; color=edgeval, markersize=7.5, colorrange=lims)
+fig</code></pre><img src="e485ddd7.png" alt="Example block output"/><pre><code class="language-julia hljs">scatter!(edgepos; color=edgeval, markersize=7.5, colorrange=lims)
 ax.title = &quot;GT phase and unwrapped phase on the aperture contour&quot;
-fig</code></pre><img src="bb0b6c7e.png" alt="Example block output"/><p>Now let&#39;s replace in the gradients all elements corresponding to the &quot;left&quot; edge (that is <code>[0,-1]</code> orientation) with the values of the restored aperture</p><pre><code class="language-julia hljs">scatter!(ci2Point.(apedge[:left]) .- Ref([0, 0.3]); marker=&#39;↓&#39;, color=:red)
-fig</code></pre><img src="2436f02c.png" alt="Example block output"/><p>These points we want to update</p><pre><code class="language-julia hljs">ind = apedge[:left] .+ Ref(CartesianIndex(0, -1))
+fig</code></pre><img src="111eecd4.png" alt="Example block output"/><p>Now let&#39;s replace in the gradients all elements corresponding to the &quot;left&quot; edge (that is <code>[0,-1]</code> orientation) with the values of the restored aperture</p><pre><code class="language-julia hljs">scatter!(ci2Point.(apedge[:left]) .- Ref([0, 0.3]); marker=&#39;↓&#39;, color=:red)
+fig</code></pre><img src="07958942.png" alt="Example block output"/><p>These points we want to update</p><pre><code class="language-julia hljs">ind = apedge[:left] .+ Ref(CartesianIndex(0, -1))
 
 fig, ax, hm = hmap(phiy)
 scatter!(ci2Point.(ind); marker=&#39;O&#39;, color=:red)
-fig</code></pre><img src="a721ed09.png" alt="Example block output"/><p>Create dictionary to make replacement easier</p><pre><code class="language-julia hljs">edgedict = Dict(zip(cont, edgeval))
+fig</code></pre><img src="2156ae16.png" alt="Example block output"/><p>Create dictionary to make replacement easier</p><pre><code class="language-julia hljs">edgedict = Dict(zip(cont, edgeval))
 
 phiy[ind] .= getindex.(Ref(edgedict), apedge[:left])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13-element view(::Matrix{Float64}, CartesianIndex{2}[CartesianIndex(8, 2), CartesianIndex(5, 3), CartesianIndex(6, 3), CartesianIndex(7, 3), CartesianIndex(9, 3), CartesianIndex(10, 3), CartesianIndex(11, 3), CartesianIndex(4, 4), CartesianIndex(12, 4), CartesianIndex(3, 5), CartesianIndex(13, 5), CartesianIndex(2, 8), CartesianIndex(14, 8)]) with eltype Float64:
  -4.113469996087247
@@ -178,7 +178,7 @@ phiy[ind] .= getindex.(Ref(edgedict), apedge[:left])</code></pre><pre class="doc
 
 fig, ax, hm = hmap(phiy)
 scatter!(ci2Point.(ind); marker=&#39;O&#39;, color=:red)
-fig</code></pre><img src="779d8473.png" alt="Example block output"/><pre><code class="language-julia hljs">phiy[ind] .= -getindex.(Ref(edgedict), apedge[:right])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13-element view(::Matrix{Float64}, CartesianIndex{2}[CartesianIndex(2, 9), CartesianIndex(14, 9), CartesianIndex(3, 12), CartesianIndex(13, 12), CartesianIndex(4, 13), CartesianIndex(12, 13), CartesianIndex(5, 14), CartesianIndex(6, 14), CartesianIndex(7, 14), CartesianIndex(9, 14), CartesianIndex(10, 14), CartesianIndex(11, 14), CartesianIndex(8, 15)]) with eltype Float64:
+fig</code></pre><img src="a3fa14ca.png" alt="Example block output"/><pre><code class="language-julia hljs">phiy[ind] .= -getindex.(Ref(edgedict), apedge[:right])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13-element view(::Matrix{Float64}, CartesianIndex{2}[CartesianIndex(2, 9), CartesianIndex(14, 9), CartesianIndex(3, 12), CartesianIndex(13, 12), CartesianIndex(4, 13), CartesianIndex(12, 13), CartesianIndex(5, 14), CartesianIndex(6, 14), CartesianIndex(7, 14), CartesianIndex(9, 14), CartesianIndex(10, 14), CartesianIndex(11, 14), CartesianIndex(8, 15)]) with eltype Float64:
   1.2865300039127527
  -1.3055848017382032
  -0.9682800740527275
@@ -195,13 +195,13 @@ fig</code></pre><img src="779d8473.png" alt="Example block output"/><pre><code c
 
 fig, ax, hm = hmap(phix)
 scatter!(ci2Point.(ind); marker=&#39;O&#39;, color=:red)
-fig</code></pre><img src="0d22e594.png" alt="Example block output"/><pre><code class="language-julia hljs">phix[ind] .= getindex.(Ref(edgedict), apedge[:up])
+fig</code></pre><img src="88ebfa1a.png" alt="Example block output"/><pre><code class="language-julia hljs">phix[ind] .= getindex.(Ref(edgedict), apedge[:up])
 
 ind = apedge[:down]
 
 fig, ax, hm = hmap(phix)
 scatter!(ci2Point.(ind); marker=&#39;O&#39;, color=:red)
-fig</code></pre><img src="af1113f9.png" alt="Example block output"/><pre><code class="language-julia hljs">phix[ind] .= -getindex.(Ref(edgedict), apedge[:down])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13-element view(::Matrix{Float64}, CartesianIndex{2}[CartesianIndex(8, 3), CartesianIndex(11, 4), CartesianIndex(12, 5), CartesianIndex(13, 6), CartesianIndex(13, 7), CartesianIndex(13, 8), CartesianIndex(14, 9), CartesianIndex(13, 10), CartesianIndex(13, 11), CartesianIndex(13, 12), CartesianIndex(12, 13), CartesianIndex(11, 14), CartesianIndex(8, 15)]) with eltype Float64:
+fig</code></pre><img src="c1484eab.png" alt="Example block output"/><pre><code class="language-julia hljs">phix[ind] .= -getindex.(Ref(edgedict), apedge[:down])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">13-element view(::Matrix{Float64}, CartesianIndex{2}[CartesianIndex(8, 3), CartesianIndex(11, 4), CartesianIndex(12, 5), CartesianIndex(13, 6), CartesianIndex(13, 7), CartesianIndex(13, 8), CartesianIndex(14, 9), CartesianIndex(13, 10), CartesianIndex(13, 11), CartesianIndex(13, 12), CartesianIndex(12, 13), CartesianIndex(11, 14), CartesianIndex(8, 15)]) with eltype Float64:
   4.113469996087247
   2.7682800740527282
   1.879802706049317
@@ -216,32 +216,32 @@ fig</code></pre><img src="af1113f9.png" alt="Example block output"/><pre><code c
  -4.046369460095345
  -4.094415198261796</code></pre><p>Replace the rest with zeroes, and we can integrate</p><pre><code class="language-julia hljs">phix[isnan.(phix)] .= 0
 phiy[isnan.(phiy)] .= 0
-show_grad((phix, phiy), &quot;\nCorrected for integration&quot;)</code></pre><img src="2fce2728.png" alt="Example block output"/><p>We&#39;ll inegrate using Finite difference cyclic, for this we need to append (prepend?) a raw and a column of zeroes phixcirc = vcat(zeros(size(ph, 1))&#39;, phix) phiycirc = hcat(zeros(size(ph, 1)), phiy)</p><pre><code class="language-julia hljs">phixcirc = vcat(phix, zeros(size(ph, 2))&#39;)
+show_grad((phix, phiy), &quot;\nCorrected for integration&quot;)</code></pre><img src="8d06ce78.png" alt="Example block output"/><p>We&#39;ll inegrate using Finite difference cyclic, for this we need to append (prepend?) a raw and a column of zeroes phixcirc = vcat(zeros(size(ph, 1))&#39;, phix) phiycirc = hcat(zeros(size(ph, 1)), phiy)</p><pre><code class="language-julia hljs">phixcirc = vcat(phix, zeros(size(ph, 2))&#39;)
 phiycirc = hcat(phiy, zeros(size(ph, 1)))
 
-show_grad((phixcirc, phiycirc), &quot;\nCorrected for integration&quot;)</code></pre><img src="9b205f21.png" alt="Example block output"/><h2 id="Integration-by-summation"><a class="docs-heading-anchor" href="#Integration-by-summation">Integration by summation</a><a id="Integration-by-summation-1"></a><a class="docs-heading-anchor-permalink" href="#Integration-by-summation" title="Permalink"></a></h2><p>Now, we can intagrate simply by summation. The corrected gradient field should have zero residues.</p><pre><code class="language-julia hljs">gradres = PhaseUtils.getresmap(phixcirc, phiycirc)
+show_grad((phixcirc, phiycirc), &quot;\nCorrected for integration&quot;)</code></pre><img src="ea592f93.png" alt="Example block output"/><h2 id="Integration-by-summation"><a class="docs-heading-anchor" href="#Integration-by-summation">Integration by summation</a><a id="Integration-by-summation-1"></a><a class="docs-heading-anchor-permalink" href="#Integration-by-summation" title="Permalink"></a></h2><p>Now, we can intagrate simply by summation. The corrected gradient field should have zero residues.</p><pre><code class="language-julia hljs">gradres = PhaseUtils.getresmap(phixcirc, phiycirc)
 fig, ax, hm = hmap(gradres);
 ax.title = &quot;Divergence of the corrected field&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="0859333c.png" alt="Example block output"/><pre><code class="language-julia hljs">ph_sum = circshift(reshape(cumsum(phixcirc[:]), size(ph)), 1)
+fig</code></pre><img src="d20fbced.png" alt="Example block output"/><pre><code class="language-julia hljs">ph_sum = circshift(reshape(cumsum(phixcirc[:]), size(ph)), 1)
 fig, ax, hm = hmap(ph_sum)
 ax.title = &quot;Restored  by direct summation phase&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="6f046c1f.png" alt="Example block output"/><p>And we can calcualte the rotational component</p><pre><code class="language-julia hljs">rot_comp = phwrap(phm - ph_sum)
+fig</code></pre><img src="3068f971.png" alt="Example block output"/><p>And we can calcualte the rotational component</p><pre><code class="language-julia hljs">rot_comp = phwrap(phm - ph_sum)
 fig, ax, hm = hmap(rot_comp .* mask)
 ax.title = &quot;Rotational component&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="36f47504.png" alt="Example block output"/><p>Restore with LS integration.</p><pre><code class="language-julia hljs">phi = circshift(
+fig</code></pre><img src="ebb49c50.png" alt="Example block output"/><p>Restore with LS integration.</p><pre><code class="language-julia hljs">phi = circshift(
     integrate_2dgrad(phixcirc, phiycirc, PhaseUtils.FiniteDifferencesCyclic()), (0, 0)
 )
 fig, ax, hm = hmap(phi)
 ax.title = &quot;Restored phase with LS method&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="cbeb67bd.png" alt="Example block output"/><p>Now the region outside the boundary is  flat</p><pre><code class="language-julia hljs">fig, ax, hm = hmap(phi .* mask)
+fig</code></pre><img src="7d28c2ed.png" alt="Example block output"/><p>Now the region outside the boundary is  flat</p><pre><code class="language-julia hljs">fig, ax, hm = hmap(phi .* mask)
 ax.title = &quot;Restored phase with LS method&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="c9297567.png" alt="Example block output"/><p>This method is now realized as <code>_unwrap_LS_Poisson</code> and is called by default by <code>unwrap_LS</code></p><pre><code class="language-julia hljs">phm_un = unwrap_LS(phm, ap; restore_piston=true)
+fig</code></pre><img src="d0877148.png" alt="Example block output"/><p>This method is now realized as <code>_unwrap_LS_Poisson</code> and is called by default by <code>unwrap_LS</code></p><pre><code class="language-julia hljs">phm_un = unwrap_LS(phm, ap; restore_piston=true)
 fig, ax, hm = hmap(phm_un .* mask);
 ax.title = &quot;Restored phase with PhaseUtils method&quot;
 Colorbar(fig[1, 2], hm)
-fig</code></pre><img src="5be3f9c5.png" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Unwrapping/">« Phase Unwrapping</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 11 October 2024 14:32">Friday 11 October 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><img src="8016bc08.png" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Unwrapping/">« Phase Unwrapping</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.2 on <span class="colophon-date" title="Thursday 8 May 2025 08:57">Thursday 8 May 2025</span>. Using Julia version 1.10.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
