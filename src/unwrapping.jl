@@ -97,14 +97,16 @@ function _itoh(phi)
 end
 
 """
-    unwrap_LS(phase, aperture; restore_piston=false)
+    unwrap_LS(phase, aperture; restore_piston=true)
 
 Unwrap 2D `phase` defined inside `aperture` using the Least-Squares decomposition
 of the wrapped gradient of the wprapped phase in the rotor-free and solenodial field
 and integration of the rotor-free part.
 
+If the `restore_piston` argument is `true`, the piston term is added to the unwrapped phase so it the mean of the wrapped difference between the unwrapped phase and the original phase is zero inside the aperture.
+
 """
-unwrap_LS(phase, ap; restore_piston=false) =
+unwrap_LS(phase, ap; restore_piston=true) =
     _unwrap_LS_Poisson(phase, binarize(ap); restore_piston)
 
 function _unwrap_LS_quick(phase, ap; restore_piston=true)
@@ -255,9 +257,15 @@ function _unwrap_LS_Poisson(phase, ap; restore_piston=false)
     # integrate the true gradients
     sol = integrate_2dgrad(phixcirc, phiycirc, PhaseUtils.FiniteDifferencesCyclic())
 
+    # if restore_piston
+    #     piston = sum(sol[findall(ap .== 0)]) / length(findall(ap .== 0))
+    #     sol .-= piston # value outside the aperture should be 0
+    # end
+
     if restore_piston
-        piston = sum(sol[findall(ap .== 0)]) / length(findall(ap .== 0))
-        sol .-= piston # value outside the aperture should be 0
+        phasediff = phwrap(sol .- phase)
+        piston = sum(phasediff[ap]) / sum(ap)
+        sol .-= piston
     end
 
     return sol
