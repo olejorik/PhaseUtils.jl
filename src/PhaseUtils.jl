@@ -10,6 +10,7 @@ export circlemask, circlemask!, linearphase
 export toArray
 export readfiles
 export find_aperture
+export findpiston, findtiptilt
 
 
 
@@ -26,5 +27,6 @@ include("cropandpad.jl")
 include("imageprocessing.jl")
 include("vectorization.jl")
 include("SimpleProjections.jl")
+include("PTT.jl")
 
 end

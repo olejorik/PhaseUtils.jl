@@ -99,17 +99,17 @@ function membrane_sor!(u, f::Array, mask_internal::Array{Bool,2}; maxits=1000, t
 
         if (anormlast < tol * anormf)
             @info "SOR method converged in $n iterations"
-            @info "anormf = $anormf"
-            @info "anormlast = $anormlast"
-            @info "omega = $omega"
+            @debug "anormf = $anormf"
+            @debug "anormlast = $anormlast"
+            @debug "omega = $omega"
             return nothing
         end
 
     end
     @info "SOR method failed to converge in $maxits iterations"
-    @info "anormf = $anormf"
-    @info "anormlast = $anormlast"
-    @info "omega = $omega"
+    @debug "anormf = $anormf"
+    @debug "anormlast = $anormlast"
+    @debug "omega = $omega"
     return nothing
 
 
