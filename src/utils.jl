@@ -150,6 +150,88 @@ function circlemask(dims::NTuple{2,Int}, args...)
 end
 
 """
+    circlemask!(a::Matrix{<:Number}, r, policy::ArrayAxes)
+
+Zero elements of `a` outside the circle of radius `r` using coordinates from
+`policy(size(a))`. The circle is centered at `0` if that value exists in each
+axis; otherwise at the middle coordinate value.
+"""
+function circlemask!(a::Matrix{<:Number}, r, policy::ArrayAxes)
+    axes = policy(size(a))
+    cx = any(==(0), axes[1]) ? 0 : axes[1][cld(length(axes[1]), 2)]
+    cy = any(==(0), axes[2]) ? 0 : axes[2][cld(length(axes[2]), 2)]
+    return circlemask!(a, axes, cx, cy, r)
+end
+
+"""
+    circlemask!(a::Matrix{<:Number}, cx, cy, r, policy::ArrayAxes)
+
+Zero elements of `a` outside the circle centered at `(cx, cy)` with radius `r`
+using coordinates from `policy(size(a))`.
+"""
+function circlemask!(a::Matrix{<:Number}, cx, cy, r, policy::ArrayAxes)
+    axes = policy(size(a))
+    return circlemask!(a, axes, cx, cy, r)
+end
+
+"""
+    circlemask!(a::Matrix{<:Number}, axes::Vector{<:AbstractVector}, cx, cy, r)
+
+Zero elements of `a` outside the circle centered at `(cx, cy)` with radius `r`
+evaluated on explicit `axes` (one vector per dimension). The length of each
+axis must match the corresponding dimension of `a`.
+"""
+function circlemask!(
+    a::Matrix{<:Number}, axes::Vector{T}, cx, cy, r
+) where {T<:AbstractVector}
+    @assert length(axes) == 2 "Provide two axis vectors for a 2D array"
+    @assert length(axes[1]) == size(a, 1) && length(axes[2]) == size(a, 2) "Axes must match array size"
+    z = zero(eltype(a))
+    for i1 in eachindex(axes[1]), i2 in eachindex(axes[2])
+        ((axes[1][i1] - cx)^2 + (axes[2][i2] - cy)^2 > r^2) && (a[i1, i2] = z)
+    end
+    return nothing
+end
+
+"""
+    circlemask(dims::NTuple{2,Int}, r, policy::ArrayAxes)
+
+Create a boolean mask of size `dims` using coordinates provided by `policy`.
+The circle is centered at the default origin of those coordinates (zero if
+present; otherwise the middle coordinate value) with radius `r` expressed in
+the same coordinate units.
+"""
+function circlemask(dims::NTuple{2,Int}, r, policy::ArrayAxes)
+    axes = policy(dims)
+    cx = any(==(0), axes[1]) ? 0 : axes[1][cld(length(axes[1]), 2)]
+    cy = any(==(0), axes[2]) ? 0 : axes[2][cld(length(axes[2]), 2)]
+    return [((x - cx)^2 + (y - cy)^2) <= r^2 for x in axes[1], y in axes[2]]
+end
+
+"""
+    circlemask(axes::Vector{<:AbstractVector}, cx, cy, r)
+
+Create a boolean mask evaluated on explicit coordinate `axes` (one vector per
+dimension), marking points inside the circle of center `(cx, cy)` and radius
+`r`.
+"""
+function circlemask(axes::Vector{T}, cx, cy, r) where {T<:AbstractVector}
+    @assert length(axes) == 2 "Provide two axis vectors for a 2D mask"
+    return [((x - cx)^2 + (y - cy)^2) <= r^2 for x in axes[1], y in axes[2]]
+end
+
+"""
+    circlemask(dims::NTuple{2,Int}, cx, cy, r, policy::ArrayAxes)
+
+Create a boolean mask of size `dims` using coordinates from `policy`, with a
+circle centered at `(cx, cy)` in those coordinate units and radius `r`.
+"""
+function circlemask(dims::NTuple{2,Int}, cx, cy, r, policy::ArrayAxes)
+    axes = policy(dims)
+    return [((x - cx)^2 + (y - cy)^2) <= r^2 for x in axes[1], y in axes[2]]
+end
+
+"""
     linearphase(T=Float64, dims::NTuple{2,Int},  cx, cy, kx, ky)
 
 Create a matrix with linear phase with slopes (`kx`, `ky`) and having zero at point (`cx`, `cy`).
@@ -175,3 +257,33 @@ end
 
 linearphase(dims::NTuple{2,Int}, cx, cy, kx, ky) =
     linearphase(Float64, dims, cx, cy, kx, ky)
+
+"""
+    linearphase(dims::NTuple{2,Int}, t::Tilt, policy::ArrayAxes=FourierAxes())
+
+Create a matrix by evaluating the tilt `t` on coordinates given by `policy(dims)`.
+This is equivalent to `materialize(t, policy(dims))`.
+"""
+function linearphase(dims::NTuple{2,Int}, t::Tilt, policy::ArrayAxes=FourierAxes())
+    return materialize(t, policy(dims))
+end
+
+"""
+    linearphase(T::Type{<:Number}, dims::NTuple{2,Int}, t::Tilt, policy::ArrayAxes=FourierAxes())
+
+Typed variant of `linearphase(dims, t, policy)` converting the result to `T`.
+"""
+function linearphase(
+    T::Type{<:Number}, dims::NTuple{2,Int}, t::Tilt, policy::ArrayAxes=FourierAxes()
+)
+    return convert.(T, materialize(t, policy(dims)))
+end
+
+"""
+    linearphase(axes::Vector{<:AbstractVector}, t::Tilt)
+
+Evaluate the tilt `t` on explicit coordinate `axes` (one vector per dimension).
+"""
+function linearphase(axes::Vector{T}, t::Tilt) where {T<:AbstractVector}
+    return materialize(t, axes)
+end

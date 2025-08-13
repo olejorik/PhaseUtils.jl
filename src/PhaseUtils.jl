@@ -11,9 +11,13 @@ export toArray
 export readfiles
 export find_aperture
 export findpiston, findtiptilt
+export Tilt,
+    TiltCentered, FreeTilt, sigma, tau, setsigma!, settau!, setall!, materialize, apply
+export ArrayAxes, FourierAxes, DataAxes, DataAxesCentered
 
 
 
+include("axes_and_tilts.jl")
 include("utils.jl")
 include("fileutils.jl")
 

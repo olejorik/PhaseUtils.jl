@@ -1,6 +1,13 @@
 using PhaseUtils
 using Test
 
+# Include any additional test files following the convention test_*.jl
+for f in sort(readdir(@__DIR__))
+    if startswith(f, "test_") && endswith(f, ".jl") && f != "runtests.jl"
+        include(f)
+    end
+end
+
 @testset "PhaseUtils.jl" begin
     # Write your tests here.
 

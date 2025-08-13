@@ -24,12 +24,23 @@ end
 
 function findtiptilt(ϕ)
     sy, sx = size(ϕ)
-    dx = diff(ϕ; dims=2)
-    dy = diff(ϕ; dims=1)
-    kx = mean(phwrap.(filter(!isnan, dx)))
-    ky = mean(phwrap.(filter(!isnan, dy)))
+    # dx = diff(ϕ; dims=2)
+    # dy = diff(ϕ; dims=1)
+    # kx = mean(phwrap.(filter(!isnan, dx)))
+    # ky = mean(phwrap.(filter(!isnan, dy)))
+    kx, ky = findtiptilt_coef(ϕ)
     tiptilt = lineararray(1:sx, 1:sy, kx, ky)
     return tiptilt
 end
 
 findtiptilt(ϕ, mask) = findtiptilt(ϕ .* mask)
+
+function findtiptilt_coef(ϕ)
+    dx = diff(ϕ; dims=2)
+    dy = diff(ϕ; dims=1)
+    kx = mean(phwrap.(filter(!isnan, dx)))
+    ky = mean(phwrap.(filter(!isnan, dy)))
+    return (kx, ky)
+end
+
+findtiptilt_coef(ϕ, mask) = findtiptilt_coef(ϕ .* mask)
