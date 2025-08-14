@@ -158,6 +158,33 @@ This is convenient for spatial-domain operations centered on the array.
 struct DataAxesCentered <: ArrayAxes end
 
 """
+    ProvidedAxes <: ArrayAxes
+
+Axis policy that wraps explicitly provided coordinate vectors. Use when you
+already have precomputed (possibly non-uniform) axes and want to reuse the
+same policy interface.
+
+Construction:
+    ProvidedAxes(ax1, ax2, ...)
+Each axis must be an `AbstractVector`. The policy is callable:
+    ProvidedAxes(ax1, ax2)(dims) -> Vector of the stored axes (validates `dims`).
+If `dims` do not match the stored axes lengths, an `ArgumentError` is thrown.
+"""
+struct ProvidedAxes{AX<:Tuple} <: ArrayAxes
+    axes::AX
+end
+
+ProvidedAxes(axes::AbstractVector...) = ProvidedAxes(tuple(axes...))
+
+function (alg::ProvidedAxes)(dims::NTuple)
+    stored_dims = ntuple(i -> length(alg.axes[i]), length(alg.axes))
+    stored_dims == dims || throw(
+        ArgumentError("ProvidedAxes dims mismatch: got $(dims), expected $(stored_dims)"),
+    )
+    return [alg.axes...]
+end
+
+"""
     (alg::FourierAxes)(dims::NTuple)
 
 Return Fourier-domain coordinate vectors for each dimension in `dims` using

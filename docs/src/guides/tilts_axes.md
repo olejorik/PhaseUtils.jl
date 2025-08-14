@@ -118,3 +118,44 @@ heatmap!(ax2, FourierAxes()(B)..., B)
 
 f
 ```
+
+### Using explicit ranges with ProvidedAxes
+
+`ProvidedAxes` lets you bind arbitrary (possibly non-uniform) coordinate ranges. Ranges in Julia (e.g. `-1:0.1:1`) are `AbstractRange`s and already behave like vectors for indexing and broadcasting.
+
+Basic 2D example with symmetric ranges at custom spacing:
+
+```@example provided_axes
+using PhaseUtils
+
+xr = -1:0.1:1            # 21 points
+yr = -0.5:0.05:0.5       # 21 points (different physical span / step)
+pax = ProvidedAxes(xr, yr)
+
+# Create a tilt with piston 0.0 and slopes 0.4 (x), -0.2 (y)
+t = TiltCentered([0.0, 0.4, -0.2])
+A = materialize(t, pax((length(xr), length(yr))))
+size(A), A[1,1], A[end,end]
+```
+
+Non-uniform grids (e.g. quadratic spacing) work the same:
+
+```@example provided_axes
+xr2 = collect(range(-1, 1; length=64).^2 .* sign.(range(-1, 1; length=64))) # denser near zero
+yr2 = range(-2, 2; length=48)
+pax2 = ProvidedAxes(xr2, yr2)
+t2 = TiltCentered([0.1, 0.05, 0.01])
+B = materialize(t2, pax2((length(xr2), length(yr2))))
+extrema(B)
+```
+
+If the requested `dims` mismatch the stored axes lengths an error is thrown:
+
+```@example provided_axes
+try
+	pax((22, 21))  # xr has length 21 → mismatch
+catch err
+	println("Caught error: ", err.msg)
+end
+nothing
+```

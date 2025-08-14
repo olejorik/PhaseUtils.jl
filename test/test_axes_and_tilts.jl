@@ -44,4 +44,12 @@ using PhaseUtils
     τ = tau(t1)
     A3 = [sigma(t1) + τ[1] * x + τ[2] * y for (x, y) in Iterators.product(axF[1], axF[2])]
     @test A2 ≈ A3
+
+    # ProvidedAxes: wrap explicit axes and verify
+    pax = ProvidedAxes(axF[1], axF[2])
+    # Use the dims that correspond to the provided axes (NOT size(A) which is (8,10))
+    A4 = materialize(t1, pax(dims))
+    @test A4 ≈ A2
+    # mismatch dims should throw
+    @test_throws ArgumentError pax((length(axF[1]) + 1, length(axF[2])))
 end
