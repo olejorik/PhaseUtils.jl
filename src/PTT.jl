@@ -19,7 +19,7 @@ function findpiston(ϕ)
 end
 
 function findpiston(ϕ, mask)
-    return mean(phwrap.(filter(!isnan, ϕ .* mask)))
+    return mean(filter(!isnan, ϕ .* mask))
 end
 
 function findtiptilt(ϕ)

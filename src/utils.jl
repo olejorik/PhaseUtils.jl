@@ -17,6 +17,20 @@ phwrap(::Missing) = missing
 diffirst(v) = [t .- v[1] for t in v[2:end]]
 diffirst(v, i) = [t .- v[i] for t in v[vcat(1:(i - 1), (i + 1):end)]]
 
+diffirst!(target, v) = begin
+    for i in eachindex(target)
+        target[i] .= v[i + 1] .- v[1]
+    end
+    return target
+end
+diffirst!(target, v, i) = begin
+    idxs = vcat(1:(i - 1), (i + 1):length(v))
+    for (j, idx) in enumerate(idxs)
+        target[j] .= v[idx] .- v[i]
+    end
+    return target
+end
+
 dotproduct(a, b) = sum([xa .* xb for (xa, xb) in zip(a, b)])
 
 maskedrmse(a, binmask) = sqrt(sum(abs2, a[Bool.(binmask)]) / sum(binmask))
