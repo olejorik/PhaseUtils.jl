@@ -34,7 +34,10 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "About" => "about.md",
-        "Guides" => ["Tilts and Axes" => "guides/tilts_axes.md"],
+        "Guides" => [
+            "Tilts and Axes" => "guides/tilts_axes.md",
+            "Windowing Functions" => "examples/Windowing.md",
+        ],
         "Reference" => ["API" => "api.md"],
         "Examples" => [
             "examples/Poisson.md",
