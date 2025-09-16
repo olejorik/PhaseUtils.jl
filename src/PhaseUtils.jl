@@ -14,6 +14,7 @@ export findpiston, findtiptilt
 export Tilt,
     TiltCentered, FreeTilt, sigma, tau, setsigma!, settau!, setall!, materialize, apply
 export ArrayAxes, FourierAxes, DataAxes, DataAxesCentered, ProvidedAxes
+export GaussianWindow
 
 
 
@@ -32,5 +33,6 @@ include("imageprocessing.jl")
 include("vectorization.jl")
 include("SimpleProjections.jl")
 include("PTT.jl")
+include("windowing.jl")
 
 end
