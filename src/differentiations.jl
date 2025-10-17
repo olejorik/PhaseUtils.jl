@@ -88,8 +88,50 @@ function _calculate_Laplacian(a, ::FiniteDifferencesCyclic)
     return ax2 .+ ay2
 end
 
+function _calculate_Laplacian(a, ::FiniteDifferences)
+    ax2 = zeros(size(a))
+    ay2 = zeros(size(a))
+
+    ax2[2:(end - 1), :] .= 2a[2:(end - 1), :] .- a[1:(end - 2), :] .- a[3:end, :]
+    ax2[1, :] = a[1, :] .- a[2, :]
+    ax2[end, :] = a[end, :] .- a[end - 1, :]
+    ay2[:, 2:(end - 1)] .= 2a[:, 2:(end - 1)] .- a[:, 1:(end - 2)] .- a[:, 3:end]
+    ay2[:, 1] .= a[:, 1] .- a[:, 2]
+    ay2[:, end] .= a[:, end] .- a[:, end - 1]
+    return ax2 .+ ay2
+end
+
 function _calculate_Laplacian(a, method::GradientCalculationAlg)
     return error("Implement $(typeof(method)) for Laplacian calculation")
 end
 
 _calculate_Laplacian(a) = _calculate_Laplacian(a, default_grad_method(a))
+
+
+
+# Cross derivatives
+
+"""
+    _calculate_crossderivatives(a [, method::GradientCalculationAlg])
+Calculate the sum of the cross derivatives of array `a` using the specified
+`method`(`FiniteDifferences` by default).
+"""
+function _calculate_crossderivatives(a, ::FiniteDifferences)
+    # axy = zeros(size(a) .-1)
+    # ayx = zeros(size(a) .-1)
+
+    # axy .= a[2:end, 2:end] .- a[1:(end - 1), 2:end] .- a[2:end, 1:(end - 1)] .+ a[1:(end - 1), 1:(end - 1)]
+    # ayx .= a[2:end, 2:end] .- a[2:end, 1:(end - 1)] .- a[1:(end - 1), 2:end] .+ a[1:(end - 1), 1:(end - 1)] 
+
+    # return axy .+ ayx
+    ret = zeros(size(a) .- 1)
+    ret .= 2 .* (a[2:end, 2:end] .- a[1:(end - 1), 2:end] .- a[2:end, 1:(end - 1)] .+ a[1:(end - 1), 1:(end - 1)])
+    return ret
+end
+
+function _calculate_crossderivatives(a, method::GradientCalculationAlg)
+    return error("Implement $(typeof(method)) for cross-derivative calculation")
+end
+_calculate_crossderivatives(a) = _calculate_crossderivatives(a, default_grad_method(a))
+
+

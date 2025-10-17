@@ -4,6 +4,7 @@
 using StaticArrays
 using LinearAlgebra: dot
 using FFTW
+import Base: show
 
 ## Tilt family
 """
@@ -22,6 +23,8 @@ the helpers `sigma`, `tau`, `setsigma!`, `settau!`, `setall!`, `apply`, and
 `materialize` defined in this module.
 """
 abstract type Tilt end
+
+
 
 """
     sigma(t::Tilt)
@@ -43,6 +46,17 @@ tau(t::Tilt) = t.coefs[2:end]
 Return the `j`-th component of the slope vector `τ`.
 """
 tau(t::Tilt, j) = t.coefs[1 + j]
+
+"""
+    Base.show(io::IO, t::Tilt)
+
+Display a tilt showing its type, sigma (σ) and tau (τ) components rounded to 2 significant digits.
+"""
+function Base.show(io::IO, t::Tilt)
+    σ_rounded = round(sigma(t); sigdigits=2)
+    τ_rounded = [round(τᵢ; sigdigits=2) for τᵢ in tau(t)]
+    return print(io, "$(typeof(t).name.name)(σ=$σ_rounded, τ=$τ_rounded)")
+end
 
 """
     setsigma!(t::Tilt, s)
