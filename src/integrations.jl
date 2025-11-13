@@ -126,4 +126,51 @@ function membrane_sor(f::Array, mask_internal::Array{Bool,2}; kwargs...)
     return u
 end
 
-export integrate_2dgrad, integrate_periodic_grad, membrane_sor!, membrane_sor
+"""
+    solve_periodic_poisson(f)
+
+Solves Poisson equation Δ `u` = `f` with periodic boundary conditions using Fourier method.
+"""
+function solve_periodic_poisson(f) 
+    F = fft(f)
+
+    kx = _grad_kernel(f, 1, Fourier())
+    ky = _grad_kernel(f, 2, Fourier())
+
+    denom = abs2.(kx) .+ abs2.(ky)
+    # denom[1, 1] = 1 # to avoid division by zero
+    # or like that
+    indzero = findall(denom .==0)
+    denom[indzero] .= 1
+
+
+    ufft = -F ./ denom
+    # ufft[1, 1] = 0
+    ufft[indzero] .= 0
+
+
+    return real(ifft(ufft))
+end
+
+function solve_periodic_cross_derivative(f) 
+    F = fft(f)
+
+    kx = _grad_kernel(f, 1, Fourier())
+    ky = _grad_kernel(f, 2, Fourier())
+
+    denom =kx .* ky
+    # denom[1, 1] = 1 # to avoid division by zero
+    # or like that
+    indzero = findall(denom .==0)
+    denom[indzero] .= 1
+
+
+    ufft = -F ./ denom
+    # ufft[1, 1] = 0
+    ufft[indzero] .= 0
+
+
+    return real(ifft(ufft))
+end
+
+export integrate_2dgrad, integrate_periodic_grad, membrane_sor!, membrane_sor, solve_periodic_poisson, solve_periodic_cross_derivative
