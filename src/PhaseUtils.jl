@@ -8,7 +8,7 @@ export bboxview
 export hardthreshold, hardthreshold!, softthreshold
 export circlemask, circlemask!, linearphase
 export toArray
-export readfiles
+export readfiles, natural_sort
 export find_aperture
 export findpiston, findtiptilt
 export Tilt,
