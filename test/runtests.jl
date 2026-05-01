@@ -170,4 +170,58 @@ end
         gw_asym = GaussianWindow((4, 8))
         @test gw_asym((N, N)) ≈ GaussianWindow(4)((N,)) .* GaussianWindow(8)((N,))'
     end
+
+    @testset "HannWindow" begin
+        N = 11
+        hw = HannWindow()
+        w1d = hw((N,))
+
+        # Edges are exactly 0, centre is exactly 1
+        @test w1d[1] ≈ 0.0 atol=1e-15
+        @test w1d[end] ≈ 0.0 atol=1e-15
+        @test w1d[(N + 1) ÷ 2] ≈ 1.0
+
+        # Symmetric
+        @test w1d ≈ reverse(w1d)
+
+        # 2D is separable
+        @test hw((N, N)) ≈ w1d .* w1d'
+
+        # Non-square 2D is separable
+        M = 7
+        @test hw((N, M)) ≈ hw((N,)) .* hw((M,))'
+    end
+
+    @testset "TukeyWindow" begin
+        N = 21
+
+        # alpha=0 → rectangular (all ones)
+        @test TukeyWindow(0)((N,)) ≈ ones(N)
+        @test TukeyWindow(0)((N, N)) ≈ ones(N, N)
+
+        # alpha=1 → identical to HannWindow (within rounding from discrete formula)
+        tw1 = TukeyWindow(1)((N,))
+        hw  = HannWindow()((N,))
+        @test tw1 ≈ hw
+
+        # Intermediate alpha: flat-top centre should be 1.0
+        tw_half = TukeyWindow(0.5)((N,))
+        ramp = floor(Int, 0.5 * (N - 1) / 2) + 1   # matches _tukey1d ramp
+        flat_range = ramp:(N - ramp + 1)
+        @test all(tw_half[flat_range] .≈ 1.0)
+
+        # Edges are 0 for any alpha > 0
+        @test tw_half[1] ≈ 0.0 atol=1e-15
+        @test tw_half[end] ≈ 0.0 atol=1e-15
+
+        # Symmetric
+        @test tw_half ≈ reverse(tw_half)
+
+        # 2D is separable
+        @test TukeyWindow(0.5)((N, N)) ≈ tw_half .* tw_half'
+
+        # Tuple alpha: per-dimension taper fractions
+        tw_asym = TukeyWindow((0.5, 0.0))
+        @test tw_asym((N, N)) ≈ TukeyWindow(0.5)((N,)) .* TukeyWindow(0.0)((N,))'
+    end
 end

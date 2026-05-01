@@ -12,11 +12,13 @@ CairoMakie.activate!(; type="png")
 # # Windowing Functions
 #
 # Windowing functions are essential tools in signal processing and image analysis for reducing edge effects,
-# localizing analysis, and controlling spectral leakage. PhaseUtils provides flexible Gaussian windowing
-# functionality through the [`GaussianWindow`](@ref) type.
+# localizing analysis, and controlling spectral leakage. PhaseUtils provides three window types:
 #
-# The `GaussianWindow` allows you to create smooth, bell-shaped windows with configurable width and center position,
-# making it ideal for applications in phase analysis, interferometry, and Fourier domain processing.
+# - [`GaussianWindow`](@ref) — smooth Gaussian taper with configurable width and centre position
+# - [`HannWindow`](@ref) — raised-cosine taper that reaches exactly 0 at both edges
+# - [`TukeyWindow`](@ref) — flat-top taper with controllable ramp fraction `alpha`
+#
+# All windows are N-dimensional functors: construct a window object, then call it with a size tuple.
 
 # ## Basic Gaussian Windows
 #
@@ -33,9 +35,8 @@ window_narrow = gw_narrow(dims_1d)
 window_medium = gw_medium(dims_1d)
 window_wide = gw_wide(dims_1d)
 
-# Note: In our GaussianWindow implementation, the `width` parameter controls how the Gaussian
-# is scaled across the array. For a 64-pixel array, the 1/e points occur at approximately
-# ±width×√2/2×63×64 ≈ ±width×0.7 pixels from center.
+# In `GaussianWindow`, the `width` parameter is a scaling factor: the 1/√e points fall at
+# exactly ±width pixels from the centre of the array.
 
 # Plot 1D windows
 fig = Figure(; size=(800, 400))
@@ -50,14 +51,14 @@ lines!(ax, -32:32, window_narrow; label="Width = 8", linewidth=2)
 lines!(ax, -32:32, window_medium; label="Width = 15", linewidth=2)
 lines!(ax, -32:32, window_wide; label="Width = 25", linewidth=2)
 
-# Add reference lines and ticks
+# Reference lines at 1/√e mark the ±width pixel offsets for each window
 hlines!(ax, [1 / √ℯ]; color=:red, linestyle=:dot, linewidth=2, alpha=0.8)
-vlines!(ax, [-4, 4]; color=:blue, linestyle=:dash, alpha=0.7)
-vlines!(ax, [-7.5, 7.5]; color=:orange, linestyle=:dash, alpha=0.7)
-vlines!(ax, [-12.5, 12.5]; color=:green, linestyle=:dash, alpha=0.7)
+vlines!(ax, [-8, 8]; color=:blue, linestyle=:dash, alpha=0.7)
+vlines!(ax, [-15, 15]; color=:orange, linestyle=:dash, alpha=0.7)
+vlines!(ax, [-25, 25]; color=:green, linestyle=:dash, alpha=0.7)
 
 ax.yticks = ([1 / √ℯ], ["1/√e"])
-ax.xticks = ([-12.5, -7.5, -4, 4, 7.5, 12.5], ["-12.5", "-7.5", "-4", "4", "7.5", "12.5"])
+ax.xticks = ([-25, -15, -8, 8, 15, 25], ["-25", "-15", "-8", "8", "15", "25"])
 
 axislegend(ax; position=:rt)
 fig
@@ -198,17 +199,124 @@ axislegend(ax2)
 
 fig
 
+# ## Hann Window
+#
+# The [`HannWindow`](@ref) (also called "Hanning") is a raised-cosine taper with no free parameters.
+# It reaches exactly 0 at both endpoints and 1 at the centre, making it a good default choice
+# when you want guaranteed edge suppression without needing to tune a width parameter.
+
+hw = HannWindow()
+window_hann_1d = hw((65,))
+
+fig = Figure(; size=(800, 350))
+ax = Axis(
+    fig[1, 1];
+    title="1D Hann Window",
+    xlabel="Pixel Index",
+    ylabel="Window Value",
+)
+lines!(ax, -32:32, window_hann_1d; linewidth=2, color=Makie.wong_colors()[1])
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+ax.yticks = ([0.0, 0.5, 1.0], ["0", "0.5", "1"])
+fig
+
+# The 2D Hann window is the separable outer product of two 1D windows:
+
+window_hann_2d = hw((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title="2D Hann Window", aspect=DataAspect())
+hm = heatmap!(ax, window_hann_2d; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label="Window Value")
+fig
+
+# ## Tukey Window
+#
+# The [`TukeyWindow`](@ref) (tapered cosine) has a single parameter `alpha` that controls
+# what fraction of the window is used for the cosine ramps:
+#
+# - `alpha = 0`: rectangular — no tapering at all
+# - `alpha = 1`: identical to a Hann window
+# - `0 < alpha < 1`: flat top over the central `1 - alpha` fraction, cosine ramps at each end
+#
+# This makes it easy to trade off between a wide flat region and strong edge suppression.
+
+alphas = [0.0, 0.25, 0.5, 0.75, 1.0]
+N_tukey = 65
+
+fig = Figure(; size=(800, 350))
+ax = Axis(
+    fig[1, 1];
+    title="1D Tukey Windows for Different α",
+    xlabel="Pixel Index",
+    ylabel="Window Value",
+)
+for α in alphas
+    lines!(ax, -32:32, TukeyWindow(α)((N_tukey,)); label="α = $α", linewidth=2)
+end
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+axislegend(ax; position=:cb)
+fig
+
+# The 2D Tukey window for α = 0.5 shows a clear flat-top region in the centre:
+
+window_tukey_2d = TukeyWindow(0.5)((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title="2D Tukey Window (α = 0.5)", aspect=DataAspect())
+hm = heatmap!(ax, window_tukey_2d; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label="Window Value")
+fig
+
+# When the two image dimensions require different taper fractions, pass a tuple for `alpha`:
+
+window_tukey_asym = TukeyWindow((0.5, 0.1))((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title="2D Tukey Window (α = (0.5, 0.1))", aspect=DataAspect())
+hm = heatmap!(ax, window_tukey_asym; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label="Window Value")
+fig
+
+# ## Window Comparison
+#
+# Putting all three window types side by side shows the key tradeoffs:
+#
+# - `GaussianWindow` never reaches 0 — useful when a smooth, infinitely-supported envelope is wanted
+# - `HannWindow` guarantees zero edges with no parameters to tune
+# - `TukeyWindow(alpha)` lets you preserve a flat signal region while still suppressing edges
+
+N_cmp = 65
+pixels = -32:32
+
+fig = Figure(; size=(900, 380))
+ax = Axis(
+    fig[1, 1];
+    title="Window Comparison (N = $N_cmp)",
+    xlabel="Pixel Index",
+    ylabel="Window Value",
+)
+lines!(ax, pixels, GaussianWindow(16)((N_cmp,)); label="Gaussian (width=16)", linewidth=2)
+lines!(ax, pixels, HannWindow()((N_cmp,));       label="Hann",                linewidth=2)
+lines!(ax, pixels, TukeyWindow(0.5)((N_cmp,));   label="Tukey (α=0.5)",      linewidth=2)
+lines!(ax, pixels, TukeyWindow(0.25)((N_cmp,));  label="Tukey (α=0.25)",     linewidth=2)
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+axislegend(ax; position=:cb)
+fig
+
 # ## Practical Application: Windowed Fourier Analysis
 #
-# Gaussian windows are commonly used to localize Fourier transforms. Here's an example
-# showing how different window sizes affect spectral analysis:
+# Applying a window before FFT reduces spectral leakage caused by the implicit periodic extension
+# of a finite signal. This example illustrates the resolution–leakage tradeoff: a narrow window
+# suppresses background trends but broadens spectral peaks; a wide window preserves peak sharpness
+# but retains more background leakage.
 
 using FFTW
 
 ## Increase resolution for better spectral analysis
 N = 256
 x = 1:N
-# Add a slowly varying quadratic background to illustrate edge effects
+# Add a slowly varying linear background to illustrate edge effects
 f1 = 7.3
 f2 = 3.7
 background = 1 / N .* (x .- N / 2)
@@ -225,20 +333,27 @@ windowed_narrow = test_signal .* window_narrow
 windowed_medium = test_signal .* window_medium
 windowed_wide = test_signal .* window_wide
 
-# Compute FFT spectra
+# Compute FFT spectra, normalised by window energy so peak amplitudes are comparable
 fft_original = abs.(fft(test_signal))
 fft_narrow = abs.(fft(windowed_narrow))
 fft_medium = abs.(fft(windowed_medium))
 fft_wide = abs.(fft(windowed_wide))
 
-fft_original ./= sum(abs2.(fft_original))
-fft_narrow ./= sum(abs2.(fft_narrow))
-fft_medium ./= sum(abs2.(fft_medium))
-fft_wide ./= sum(abs2.(fft_wide))
+## Normalise by sqrt(window_energy * N) so a pure sinusoid gives amplitude 0.5 regardless of window
+fft_original ./= sqrt(N * N)                              # rectangular implicit window
+fft_narrow   ./= sqrt(sum(abs2.(window_narrow)) * N)
+fft_medium   ./= sqrt(sum(abs2.(window_medium)) * N)
+fft_wide     ./= sqrt(sum(abs2.(window_wide))   * N)
 
 freq = fftfreq(N, 1.0)
 
-fig = Figure(; size=(1000, 600))
+f1_freq = f1 / N
+f2_freq = f2 / N
+## Nearest DFT bin frequencies — spectral peaks land here, not at the true (non-integer) frequencies
+f1_bin = round(Int, f1) / N
+f2_bin = round(Int, f2) / N
+
+fig = Figure(; size=(1000, 850))
 
 ## Time domain
 ax1 = Axis(fig[1, 1]; title="Windowed Signals", xlabel="Sample", ylabel="Amplitude")
@@ -248,37 +363,55 @@ lines!(ax1, x, windowed_medium; label="Medium window", linewidth=2)
 lines!(ax1, x, windowed_wide; label="Wide window", linewidth=2)
 axislegend(ax1; position=:rt)
 
-## Frequency domain
-
+## Full frequency domain
 ax2 = Axis(fig[2, 1]; title="FFT Spectra", xlabel="Frequency (in 1/N)", ylabel="Magnitude")
 lines!(ax2, freq[1:div(N, 2)], fft_original[1:div(N, 2)]; label="Original", linewidth=2)
 lines!(ax2, freq[1:div(N, 2)], fft_narrow[1:div(N, 2)]; label="Narrow window", linewidth=2)
 lines!(ax2, freq[1:div(N, 2)], fft_medium[1:div(N, 2)]; label="Medium window", linewidth=2)
 lines!(ax2, freq[1:div(N, 2)], fft_wide[1:div(N, 2)]; label="Wide window", linewidth=2)
-f1_freq = f1 / N
-f2_freq = f2 / N
-## Add vertical lines for ground truth frequencies
-vlines!(ax2, [f1_freq, f2_freq]; linewidth=2, alpha=0.7)
-ax2.xticks = ([f1_freq, f2_freq], ["7.3", "3.7"])
+vlines!(ax2, [f2_freq, f1_freq]; linewidth=2, alpha=0.7)
+ax2.xticks = ([f2_freq, f1_freq], ["$(f2)", "$(f1)"])
 axislegend(ax2; position=:rt)
+
+## Zoom into the peak region
+zoom_hw = 2 * f1_freq
+ax3 = Axis(
+    fig[3, 1];
+    title="FFT Spectra — zoom near peaks",
+    xlabel="Frequency (in 1/N)",
+    ylabel="Magnitude",
+    limits=(0, f1_freq + zoom_hw, nothing, nothing),
+)
+lines!(ax3, freq[1:div(N, 2)], fft_original[1:div(N, 2)]; label="Original", linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_narrow[1:div(N, 2)]; label="Narrow window", linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_medium[1:div(N, 2)]; label="Medium window", linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_wide[1:div(N, 2)]; label="Wide window", linewidth=2)
+vlines!(ax3, [f2_freq, f1_freq]; linewidth=2, alpha=0.7)
+vlines!(ax3, [f2_bin, f1_bin]; linewidth=1, linestyle=:dash, color=(:gray, 0.5))
+ax3.xticks = (
+    [f2_bin, f2_freq, f1_bin, f1_freq],
+    ["\nk=$(round(Int,f2))/N", "$(f2)", "\nk=$(round(Int,f1))/N", "$(f1)"],
+)
+axislegend(ax3; position=:rt)
 
 fig
 
 
 # ## Summary
 #
-# The `GaussianWindow` type in PhaseUtils provides flexible windowing capabilities:
+# PhaseUtils provides three complementary window types, all following the same functor interface:
+# construct a window object, then call it with a size tuple to get an array.
 #
-# - **Symmetric windows**: `GaussianWindow(width)` for equal width in all dimensions
-# - **Asymmetric windows**: `GaussianWindow((width_x, width_y, ...))` for dimension-specific widths
-# - **Custom centering**: `center` parameter for off-center windows
-# - **Backward compatibility**: Existing code continues to work unchanged
+# | Type | Parameters | Reaches 0 at edges? | Flat top? |
+# |---|---|---|---|
+# | `GaussianWindow(width)` | width (+ optional center) | No | No |
+# | `HannWindow()` | none | Yes | No |
+# | `TukeyWindow(alpha)` | alpha ∈ [0,1] (scalar or tuple) | Yes (for α > 0) | Yes |
 #
-# These windows are particularly useful for:
-# - Localizing Fourier analysis
-# - Reducing edge effects in image processing
-# - Creating smooth transitions in phase analysis
-# - Controlling spectral leakage in signal processing
+# All windows are N-dimensional and separable: the N-D window is the outer product of 1D windows
+# applied along each dimension. Asymmetric behaviour is available via tuple parameters.
 #
-# The implementation maintains high performance while providing intuitive, flexible control
-# over window shape and positioning.
+# Typical use cases:
+# - **Fourier analysis**: apply before FFT to suppress spectral leakage
+# - **Image tapering**: suppress edge artefacts before iterative algorithms
+# - **Apodisation**: smooth the pupil boundary in phase retrieval
