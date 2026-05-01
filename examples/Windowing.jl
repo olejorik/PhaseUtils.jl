@@ -406,7 +406,7 @@ fig
 # |---|---|---|---|
 # | `GaussianWindow(width)` | width (+ optional center) | No | No |
 # | `HannWindow()` | none | Yes | No |
-# | `TukeyWindow(alpha)` | alpha ∈ [0,1] (scalar or tuple) | Yes (for α > 0) | Yes |
+# | `TukeyWindow(alpha)` | alpha ∈ \[0,1\] (scalar or tuple) | Yes (for α > 0) | Yes |
 #
 # All windows are N-dimensional and separable: the N-D window is the outer product of 1D windows
 # applied along each dimension. Asymmetric behaviour is available via tuple parameters.
