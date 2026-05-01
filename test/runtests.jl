@@ -139,8 +139,35 @@ end
 
         b = PhaseUtils.threshold(a, PhaseUtils.SoftThreshold(1.0))
         @test all(mask .* 8 .== b .+ 2)
+    end
 
+    @testset "GaussianWindow" begin
+        N = 11  # odd so center pixel is exact
 
+        # Implicit center and explicit center=(N+1)/2 must be identical (regression for factor-of-2 bug)
+        gw = GaussianWindow(4)
+        gw_explicit = GaussianWindow(4; center=(N + 1) / 2)
+        @test gw((N,)) ≈ gw_explicit((N,))
+        @test gw((N, N)) ≈ gw_explicit((N, N))
 
+        # Peak value is 1.0 at the center pixel for odd-sized array
+        w1d = gw((N,))
+        @test w1d[(N + 1) ÷ 2] ≈ 1.0
+
+        # Window is symmetric around center
+        @test w1d ≈ reverse(w1d)
+
+        # 2D window is separable: outer product of two 1D windows
+        @test gw((N, N)) ≈ w1d .* w1d'
+
+        # Off-center: peak is at the specified pixel
+        c = 4
+        gw_off = GaussianWindow(4; center=c)
+        w_off = gw_off((N,))
+        @test argmax(w_off) == c
+
+        # Asymmetric tuple width: 2D window = outer product of the two 1D windows
+        gw_asym = GaussianWindow((4, 8))
+        @test gw_asym((N, N)) ≈ GaussianWindow(4)((N,)) .* GaussianWindow(8)((N,))'
     end
 end

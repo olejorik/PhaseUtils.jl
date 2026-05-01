@@ -4,7 +4,7 @@
 This module provides windowing functions for image processing and signal analysis.
 """
 
-abstract type Window{T<:Union{Real,Tuple}} end
+abstract type Window end
 
 (w::Window)(dims::Tuple{Vararg{Int}}) =
     error("Windowing for type $(typeof(w)) is not defined")
@@ -38,7 +38,7 @@ gw_asym_offset = GaussianWindow((20, 10); center=(30, 15))
 window_asym_off = gw_asym_offset((64, 32))  # centered at (30, 15)
 ```
 """
-struct GaussianWindow{T,C} <: Window{T}
+struct GaussianWindow{T,C} <: Window
     width::T
     center::C
 
@@ -47,19 +47,19 @@ struct GaussianWindow{T,C} <: Window{T}
     end
 end
 
-_grange_centered(len, wid) = range(-(len - 1) / wid, (len - 1) / wid; length=len)
-_grange_offset(len, wid, center) =
-    range((1 - center) / wid, (len - center) / wid; length=len)
+# Single canonical range: runs from (1 - center)/wid to (len - center)/wid.
+# At the default center (len+1)/2 this is symmetric around zero with half-range (len-1)/(2*wid).
+_grange(len, wid, center) = range((1 - center) / wid, (len - center) / wid; length=len)
 
 _gwidth(w::GaussianWindow{<:Real}, dims) = fill(w.width, length(dims))
 _gwidth(w::GaussianWindow{<:Tuple}, dims) =
     if length(w.width) == length(dims)
-        w.width
+        collect(w.width)
     else
         error("Incompatible dimensions of the window and the array")
     end
 
-_gcenter(w::GaussianWindow{<:Any,Nothing}, dims) = [(d + 1) / 2 for d in dims]  # Default: center of array
+_gcenter(w::GaussianWindow{<:Any,Nothing}, dims) = [(d + 1) / 2 for d in dims]
 _gcenter(w::GaussianWindow{<:Any,<:Real}, dims) = fill(w.center, length(dims))
 _gcenter(w::GaussianWindow{<:Any,<:Tuple}, dims) =
     if length(w.center) == length(dims)
@@ -69,17 +69,12 @@ _gcenter(w::GaussianWindow{<:Any,<:Tuple}, dims) =
     end
 
 function (w::GaussianWindow)(dims::Tuple{Vararg{Int}})
-    a = zeros(dims) .+ 1
+    a = ones(dims)
     widths = _gwidth(w, dims)
     centers = _gcenter(w, dims)
 
     for (id, d) in enumerate(dims)
-        ## Create range based on whether center is specified
-        if w.center === nothing
-            wd = _grange_centered(d, widths[id])
-        else
-            wd = _grange_offset(d, widths[id], centers[id])
-        end
+        wd = _grange(d, widths[id], centers[id])
 
         for (is, s) in enumerate(eachslice(a; dims=id))
             s .*= exp.(-wd[is]^2 / 2)
