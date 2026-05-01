@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Windowing Functions · PhaseUtils</title><meta name="title" content="Windowing Functions · PhaseUtils"/><meta property="og:title" content="Windowing Functions · PhaseUtils"/><meta property="twitter:title" content="Windowing Functions · PhaseUtils"/><meta name="description" content="Documentation for PhaseUtils."/><meta property="og:description" content="Documentation for PhaseUtils."/><meta property="twitter:description" content="Documentation for PhaseUtils."/><meta property="og:url" content="https://olejorik.github.io/PhaseUtils.jl/stable/examples/Windowing/"/><meta property="twitter:url" content="https://olejorik.github.io/PhaseUtils.jl/stable/examples/Windowing/"/><link rel="canonical" href="https://olejorik.github.io/PhaseUtils.jl/stable/examples/Windowing/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">PhaseUtils</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../about/">About</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../../guides/tilts_axes/">Tilts and Axes</a></li><li class="is-active"><a class="tocitem" href>Windowing Functions</a><ul class="internal"><li><a class="tocitem" href="#Basic-Gaussian-Windows"><span>Basic Gaussian Windows</span></a></li><li><a class="tocitem" href="#2D-Gaussian-Windows"><span>2D Gaussian Windows</span></a></li><li><a class="tocitem" href="#Asymmetric-Windows"><span>Asymmetric Windows</span></a></li><li><a class="tocitem" href="#Off-Center-Windows"><span>Off-Center Windows</span></a></li><li><a class="tocitem" href="#Asymmetric-Off-Center-Windows"><span>Asymmetric Off-Center Windows</span></a></li><li><a class="tocitem" href="#Cross-Sections-and-Profiles"><span>Cross-Sections and Profiles</span></a></li><li><a class="tocitem" href="#Hann-Window"><span>Hann Window</span></a></li><li><a class="tocitem" href="#Tukey-Window"><span>Tukey Window</span></a></li><li><a class="tocitem" href="#Window-Comparison"><span>Window Comparison</span></a></li><li><a class="tocitem" href="#Practical-Application:-Windowed-Fourier-Analysis"><span>Practical Application: Windowed Fourier Analysis</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li></ul></li><li><span class="tocitem">Reference</span><ul><li><a class="tocitem" href="../../api/">API</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Poisson/">Solving Poisson equation</a></li><li><a class="tocitem" href="../Unwrapping/">Phase Unwrapping</a></li><li><a class="tocitem" href="../Unwrapping_method/">Phase Unwrapping method  explained</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Windowing Functions</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Windowing Functions</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/olejorik/PhaseUtils.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/olejorik/PhaseUtils.jl/blob/main/examples/Windowing.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-julia hljs">using PhaseUtils
+using CairoMakie
+CairoMakie.activate!(; type=&quot;png&quot;)</code></pre><h1 id="Windowing-Functions"><a class="docs-heading-anchor" href="#Windowing-Functions">Windowing Functions</a><a id="Windowing-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Windowing-Functions" title="Permalink"></a></h1><p>Windowing functions are essential tools in signal processing and image analysis for reducing edge effects, localizing analysis, and controlling spectral leakage. PhaseUtils provides three window types:</p><ul><li><a href="../../api/#PhaseUtils.GaussianWindow"><code>GaussianWindow</code></a> — smooth Gaussian taper with configurable width and centre position</li><li><a href="../../api/#PhaseUtils.HannWindow"><code>HannWindow</code></a> — raised-cosine taper that reaches exactly 0 at both edges</li><li><a href="../../api/#PhaseUtils.TukeyWindow"><code>TukeyWindow</code></a> — flat-top taper with controllable ramp fraction <code>alpha</code></li></ul><p>All windows are N-dimensional functors: construct a window object, then call it with a size tuple.</p><h2 id="Basic-Gaussian-Windows"><a class="docs-heading-anchor" href="#Basic-Gaussian-Windows">Basic Gaussian Windows</a><a id="Basic-Gaussian-Windows-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Gaussian-Windows" title="Permalink"></a></h2><p>Let&#39;s start with creating simple centered Gaussian windows of different widths:</p><p>Create windows with different widths</p><pre><code class="language-julia hljs">gw_narrow = GaussianWindow(8)
+gw_medium = GaussianWindow(15)
+gw_wide = GaussianWindow(25)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">GaussianWindow{Int64, Nothing}(25, nothing)</code></pre><p>Generate 1D windows for visualization</p><pre><code class="language-julia hljs">dims_1d = (65,)
+window_narrow = gw_narrow(dims_1d)
+window_medium = gw_medium(dims_1d)
+window_wide = gw_wide(dims_1d)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">65-element Vector{Float64}:
+ 0.4407841408053245
+ 0.4635690174959985
+ 0.4867522559599717
+ 0.5102777977955038
+ 0.534085147759517
+ 0.5581095554166826
+ 0.5822822402018133
+ 0.6065306597126334
+ 0.6307788205474283
+ 0.6549476304858832
+ ⋮
+ 0.6307788205474283
+ 0.6065306597126334
+ 0.5822822402018133
+ 0.5581095554166826
+ 0.534085147759517
+ 0.5102777977955038
+ 0.4867522559599717
+ 0.4635690174959985
+ 0.4407841408053245</code></pre><p>In <code>GaussianWindow</code>, the <code>width</code> parameter is a scaling factor: the 1/√e points fall at exactly ±width pixels from the centre of the array.</p><p>Plot 1D windows</p><pre><code class="language-julia hljs">fig = Figure(; size=(800, 400))
+ax = Axis(
+    fig[1, 1];
+    title=&quot;1D Gaussian Windows with Different Widths&quot;,
+    xlabel=&quot;Pixel Index&quot;,
+    ylabel=&quot;Window Value&quot;,
+)
+
+lines!(ax, -32:32, window_narrow; label=&quot;Width = 8&quot;, linewidth=2)
+lines!(ax, -32:32, window_medium; label=&quot;Width = 15&quot;, linewidth=2)
+lines!(ax, -32:32, window_wide; label=&quot;Width = 25&quot;, linewidth=2)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Makie.Lines{Tuple{Vector{GeometryBasics.Point{2, Float64}}}}</code></pre><p>Reference lines at 1/√e mark the ±width pixel offsets for each window</p><pre><code class="language-julia hljs">hlines!(ax, [1 / √ℯ]; color=:red, linestyle=:dot, linewidth=2, alpha=0.8)
+vlines!(ax, [-8, 8]; color=:blue, linestyle=:dash, alpha=0.7)
+vlines!(ax, [-15, 15]; color=:orange, linestyle=:dash, alpha=0.7)
+vlines!(ax, [-25, 25]; color=:green, linestyle=:dash, alpha=0.7)
+
+ax.yticks = ([1 / √ℯ], [&quot;1/√e&quot;])
+ax.xticks = ([-25, -15, -8, 8, 15, 25], [&quot;-25&quot;, &quot;-15&quot;, &quot;-8&quot;, &quot;8&quot;, &quot;15&quot;, &quot;25&quot;])
+
+axislegend(ax; position=:rt)
+fig</code></pre><img src="21ab0f1d.png" alt="Example block output"/><h2 id="2D-Gaussian-Windows"><a class="docs-heading-anchor" href="#2D-Gaussian-Windows">2D Gaussian Windows</a><a id="2D-Gaussian-Windows-1"></a><a class="docs-heading-anchor-permalink" href="#2D-Gaussian-Windows" title="Permalink"></a></h2><p>Gaussian windows are particularly useful in 2D for image processing applications:</p><p>Create 2D windows with symmetric widths</p><pre><code class="language-julia hljs">dims_2d = (64, 64)
+window_2d_narrow = gw_narrow(dims_2d)
+window_2d_medium = gw_medium(dims_2d)
+window_2d_wide = gw_wide(dims_2d)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">64×64 Matrix{Float64}:
+ 0.204416  0.21481   0.225373  0.236076  …  0.225373  0.21481   0.204416
+ 0.21481   0.225734  0.236833  0.248081     0.236833  0.225734  0.21481
+ 0.225373  0.236833  0.248478  0.260279     0.248478  0.236833  0.225373
+ 0.236076  0.248081  0.260279  0.272641     0.260279  0.248081  0.236076
+ 0.246893  0.259448  0.272205  0.285133     0.272205  0.259448  0.246893
+ 0.257793  0.270901  0.284222  0.297721  …  0.284222  0.270901  0.257793
+ 0.268743  0.282409  0.296295  0.310367     0.296295  0.282409  0.268743
+ 0.279711  0.293934  0.308387  0.323033     0.308387  0.293934  0.279711
+ 0.29066   0.305441  0.320459  0.335679     0.320459  0.305441  0.29066
+ 0.301556  0.31689   0.332472  0.348262     0.332472  0.31689   0.301556
+ ⋮                                       ⋱                      
+ 0.29066   0.305441  0.320459  0.335679  …  0.320459  0.305441  0.29066
+ 0.279711  0.293934  0.308387  0.323033     0.308387  0.293934  0.279711
+ 0.268743  0.282409  0.296295  0.310367     0.296295  0.282409  0.268743
+ 0.257793  0.270901  0.284222  0.297721     0.284222  0.270901  0.257793
+ 0.246893  0.259448  0.272205  0.285133     0.272205  0.259448  0.246893
+ 0.236076  0.248081  0.260279  0.272641  …  0.260279  0.248081  0.236076
+ 0.225373  0.236833  0.248478  0.260279     0.248478  0.236833  0.225373
+ 0.21481   0.225734  0.236833  0.248081     0.236833  0.225734  0.21481
+ 0.204416  0.21481   0.225373  0.236076     0.225373  0.21481   0.204416</code></pre><p>Visualize 2D windows</p><pre><code class="language-julia hljs">fig = Figure(; size=(1000, 300))
+
+ax1 = Axis(fig[1, 1]; title=&quot;Narrow (σ=8)&quot;, aspect=DataAspect())
+heatmap!(ax1, window_2d_narrow; colormap=:viridis)
+
+ax2 = Axis(fig[1, 2]; title=&quot;Medium (σ=15)&quot;, aspect=DataAspect())
+heatmap!(ax2, window_2d_medium; colormap=:viridis)
+
+ax3 = Axis(fig[1, 3]; title=&quot;Wide (σ=25)&quot;, aspect=DataAspect())
+hm = heatmap!(ax3, window_2d_wide; colormap=:viridis)
+
+Colorbar(fig[1, 4], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="37f84702.png" alt="Example block output"/><h2 id="Asymmetric-Windows"><a class="docs-heading-anchor" href="#Asymmetric-Windows">Asymmetric Windows</a><a id="Asymmetric-Windows-1"></a><a class="docs-heading-anchor-permalink" href="#Asymmetric-Windows" title="Permalink"></a></h2><p>You can create asymmetric windows by specifying different widths for each dimension:</p><p>Create asymmetric windows</p><pre><code class="language-julia hljs">gw_horizontal = GaussianWindow((30, 10))  # Wide horizontally, narrow vertically
+gw_vertical = GaussianWindow((10, 30))    # Narrow horizontally, wide vertically
+
+window_horizontal = gw_horizontal(dims_2d)
+window_vertical = gw_vertical(dims_2d)
+
+fig = Figure(; size=(800, 400))
+
+ax1 = Axis(fig[1, 1]; title=&quot;Horizontal Gaussian (30×10)&quot;, aspect=DataAspect())
+heatmap!(ax1, window_horizontal; colormap=:plasma)
+
+ax2 = Axis(fig[1, 2]; title=&quot;Vertical Gaussian (10×30)&quot;, aspect=DataAspect())
+hm = heatmap!(ax2, window_vertical; colormap=:plasma)
+
+Colorbar(fig[1, 3], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="57a7e410.png" alt="Example block output"/><h2 id="Off-Center-Windows"><a class="docs-heading-anchor" href="#Off-Center-Windows">Off-Center Windows</a><a id="Off-Center-Windows-1"></a><a class="docs-heading-anchor-permalink" href="#Off-Center-Windows" title="Permalink"></a></h2><p>One of the key features of PhaseUtils&#39; GaussianWindow is the ability to specify custom center positions:</p><p>Create off-center windows</p><pre><code class="language-julia hljs">gw_topleft = GaussianWindow(12; center=(16, 16))     # Top-left quadrant
+gw_topright = GaussianWindow(12; center=(16, 48))    # Top-right quadrant
+gw_bottomleft = GaussianWindow(12; center=(48, 16))  # Bottom-left quadrant
+gw_bottomright = GaussianWindow(12; center=(48, 48)) # Bottom-right quadrant
+
+window_tl = gw_topleft(dims_2d)
+window_tr = gw_topright(dims_2d)
+window_bl = gw_bottomleft(dims_2d)
+window_br = gw_bottomright(dims_2d)
+
+fig = Figure(; size=(800, 800))
+
+ax1 = Axis(fig[1, 1]; title=&quot;Top-Left (16,16)&quot;, aspect=DataAspect())
+heatmap!(ax1, window_tl; colormap=:inferno)
+
+ax2 = Axis(fig[1, 2]; title=&quot;Top-Right (16,48)&quot;, aspect=DataAspect())
+heatmap!(ax2, window_tr; colormap=:inferno)
+
+ax3 = Axis(fig[2, 1]; title=&quot;Bottom-Left (48,16)&quot;, aspect=DataAspect())
+heatmap!(ax3, window_bl; colormap=:inferno)
+
+ax4 = Axis(fig[2, 2]; title=&quot;Bottom-Right (48,48)&quot;, aspect=DataAspect())
+hm = heatmap!(ax4, window_br; colormap=:inferno)
+
+Colorbar(fig[:, 3], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="be7f1945.png" alt="Example block output"/><h2 id="Asymmetric-Off-Center-Windows"><a class="docs-heading-anchor" href="#Asymmetric-Off-Center-Windows">Asymmetric Off-Center Windows</a><a id="Asymmetric-Off-Center-Windows-1"></a><a class="docs-heading-anchor-permalink" href="#Asymmetric-Off-Center-Windows" title="Permalink"></a></h2><p>For maximum flexibility, you can combine asymmetric widths with custom center positions:</p><p>Create asymmetric off-center windows</p><pre><code class="language-julia hljs">gw_asym_center = GaussianWindow((20, 10); center=(32, 32))    # Centered asymmetric
+gw_asym_offset = GaussianWindow((15, 25); center=(20, 45))    # Off-center asymmetric
+
+window_asym_center = gw_asym_center(dims_2d)
+window_asym_offset = gw_asym_offset(dims_2d)
+
+fig = Figure(; size=(800, 400))
+
+ax1 = Axis(fig[1, 1]; title=&quot;Asymmetric Centered (20×10)&quot;, aspect=DataAspect())
+heatmap!(ax1, window_asym_center; colormap=:cividis)
+
+ax2 = Axis(fig[1, 2]; title=&quot;Asymmetric Off-Center (15×25) at (20,45)&quot;, aspect=DataAspect())
+hm = heatmap!(ax2, window_asym_offset; colormap=:cividis)
+
+Colorbar(fig[1, 3], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="3ad9cf66.png" alt="Example block output"/><h2 id="Cross-Sections-and-Profiles"><a class="docs-heading-anchor" href="#Cross-Sections-and-Profiles">Cross-Sections and Profiles</a><a id="Cross-Sections-and-Profiles-1"></a><a class="docs-heading-anchor-permalink" href="#Cross-Sections-and-Profiles" title="Permalink"></a></h2><p>Let&#39;s examine the profile characteristics of different windows:</p><p>Generate windows for profile analysis</p><pre><code class="language-julia hljs">gw_profile = GaussianWindow(15)
+gw_offset_profile = GaussianWindow(15; center=(32, 20))
+
+window_profile = gw_profile(dims_2d)
+window_offset_profile = gw_offset_profile(dims_2d)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">64×64 Matrix{Float64}:
+ 0.0529833  0.0575239  0.0621765  …  0.0023448   0.00194121  0.00159996
+ 0.0606751  0.0658748  0.0712029     0.0026852   0.00222302  0.00183223
+ 0.0691753  0.0751034  0.081178      0.00306138  0.00253445  0.00208891
+ 0.0785167  0.0852453  0.0921402     0.00347479  0.0028767   0.002371
+ 0.0887242  0.0963276  0.104119      0.00392653  0.00325069  0.00267924
+ 0.0998142  0.108368   0.117133   …  0.00441732  0.003657    0.00301413
+ 0.111792   0.121373   0.13119       0.00494742  0.00409586  0.00337584
+ 0.124653   0.135335   0.146282      0.00551656  0.00456705  0.00376419
+ 0.138376   0.150235   0.162386      0.0061239   0.00506985  0.00417861
+ 0.15293    0.166035   0.179465      0.00676796  0.00560305  0.00461807
+ ⋮                                ⋱                          
+ 0.124653   0.135335   0.146282   …  0.00551656  0.00456705  0.00376419
+ 0.111792   0.121373   0.13119       0.00494742  0.00409586  0.00337584
+ 0.0998142  0.108368   0.117133      0.00441732  0.003657    0.00301413
+ 0.0887242  0.0963276  0.104119      0.00392653  0.00325069  0.00267924
+ 0.0785167  0.0852453  0.0921402     0.00347479  0.0028767   0.002371
+ 0.0691753  0.0751034  0.081178   …  0.00306138  0.00253445  0.00208891
+ 0.0606751  0.0658748  0.0712029     0.0026852   0.00222302  0.00183223
+ 0.0529833  0.0575239  0.0621765     0.0023448   0.00194121  0.00159996
+ 0.0460615  0.0500088  0.0540537     0.00203847  0.00168761  0.00139094</code></pre><p>Extract cross-sections</p><pre><code class="language-julia hljs">center_row = window_profile[32, :]
+center_col = window_profile[:, 32]
+offset_row = window_offset_profile[32, :]
+offset_col = window_offset_profile[:, 20]
+
+fig = Figure(; size=(1000, 400))
+
+ax1 = Axis(
+    fig[1, 1]; title=&quot;Horizontal Profiles&quot;, xlabel=&quot;Pixel Index&quot;, ylabel=&quot;Window Value&quot;
+)
+lines!(ax1, 1:64, center_row; label=&quot;Centered&quot;, linewidth=2)
+lines!(ax1, 1:64, offset_row; label=&quot;Off-center&quot;, linewidth=2)
+axislegend(ax1)
+
+ax2 = Axis(
+    fig[1, 2]; title=&quot;Vertical Profiles&quot;, xlabel=&quot;Pixel Index&quot;, ylabel=&quot;Window Value&quot;
+)
+lines!(ax2, 1:64, center_col; label=&quot;Centered&quot;, linewidth=2)
+lines!(ax2, 1:64, offset_col; label=&quot;Off-center&quot;, linewidth=2)
+axislegend(ax2)
+
+fig</code></pre><img src="b27e98f8.png" alt="Example block output"/><h2 id="Hann-Window"><a class="docs-heading-anchor" href="#Hann-Window">Hann Window</a><a id="Hann-Window-1"></a><a class="docs-heading-anchor-permalink" href="#Hann-Window" title="Permalink"></a></h2><p>The <a href="../../api/#PhaseUtils.HannWindow"><code>HannWindow</code></a> (also called &quot;Hanning&quot;) is a raised-cosine taper with no free parameters. It reaches exactly 0 at both endpoints and 1 at the centre, making it a good default choice when you want guaranteed edge suppression without needing to tune a width parameter.</p><pre><code class="language-julia hljs">hw = HannWindow()
+window_hann_1d = hw((65,))
+
+fig = Figure(; size=(800, 350))
+ax = Axis(
+    fig[1, 1];
+    title=&quot;1D Hann Window&quot;,
+    xlabel=&quot;Pixel Index&quot;,
+    ylabel=&quot;Window Value&quot;,
+)
+lines!(ax, -32:32, window_hann_1d; linewidth=2, color=Makie.wong_colors()[1])
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+ax.yticks = ([0.0, 0.5, 1.0], [&quot;0&quot;, &quot;0.5&quot;, &quot;1&quot;])
+fig</code></pre><img src="2e6d1eb9.png" alt="Example block output"/><p>The 2D Hann window is the separable outer product of two 1D windows:</p><pre><code class="language-julia hljs">window_hann_2d = hw((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title=&quot;2D Hann Window&quot;, aspect=DataAspect())
+hm = heatmap!(ax, window_hann_2d; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="32b7691e.png" alt="Example block output"/><h2 id="Tukey-Window"><a class="docs-heading-anchor" href="#Tukey-Window">Tukey Window</a><a id="Tukey-Window-1"></a><a class="docs-heading-anchor-permalink" href="#Tukey-Window" title="Permalink"></a></h2><p>The <a href="../../api/#PhaseUtils.TukeyWindow"><code>TukeyWindow</code></a> (tapered cosine) has a single parameter <code>alpha</code> that controls what fraction of the window is used for the cosine ramps:</p><ul><li><code>alpha = 0</code>: rectangular — no tapering at all</li><li><code>alpha = 1</code>: identical to a Hann window</li><li><code>0 &lt; alpha &lt; 1</code>: flat top over the central <code>1 - alpha</code> fraction, cosine ramps at each end</li></ul><p>This makes it easy to trade off between a wide flat region and strong edge suppression.</p><pre><code class="language-julia hljs">alphas = [0.0, 0.25, 0.5, 0.75, 1.0]
+N_tukey = 65
+
+fig = Figure(; size=(800, 350))
+ax = Axis(
+    fig[1, 1];
+    title=&quot;1D Tukey Windows for Different α&quot;,
+    xlabel=&quot;Pixel Index&quot;,
+    ylabel=&quot;Window Value&quot;,
+)
+for α in alphas
+    lines!(ax, -32:32, TukeyWindow(α)((N_tukey,)); label=&quot;α = $α&quot;, linewidth=2)
+end
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+axislegend(ax; position=:cb)
+fig</code></pre><img src="48fe278b.png" alt="Example block output"/><p>The 2D Tukey window for α = 0.5 shows a clear flat-top region in the centre:</p><pre><code class="language-julia hljs">window_tukey_2d = TukeyWindow(0.5)((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title=&quot;2D Tukey Window (α = 0.5)&quot;, aspect=DataAspect())
+hm = heatmap!(ax, window_tukey_2d; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="63038006.png" alt="Example block output"/><p>When the two image dimensions require different taper fractions, pass a tuple for <code>alpha</code>:</p><pre><code class="language-julia hljs">window_tukey_asym = TukeyWindow((0.5, 0.1))((64, 64))
+
+fig = Figure(; size=(500, 420))
+ax = Axis(fig[1, 1]; title=&quot;2D Tukey Window (α = (0.5, 0.1))&quot;, aspect=DataAspect())
+hm = heatmap!(ax, window_tukey_asym; colormap=:viridis)
+Colorbar(fig[1, 2], hm; label=&quot;Window Value&quot;)
+fig</code></pre><img src="b59a3f82.png" alt="Example block output"/><h2 id="Window-Comparison"><a class="docs-heading-anchor" href="#Window-Comparison">Window Comparison</a><a id="Window-Comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Window-Comparison" title="Permalink"></a></h2><p>Putting all three window types side by side shows the key tradeoffs:</p><ul><li><code>GaussianWindow</code> never reaches 0 — useful when a smooth, infinitely-supported envelope is wanted</li><li><code>HannWindow</code> guarantees zero edges with no parameters to tune</li><li><code>TukeyWindow(alpha)</code> lets you preserve a flat signal region while still suppressing edges</li></ul><pre><code class="language-julia hljs">N_cmp = 65
+pixels = -32:32
+
+fig = Figure(; size=(900, 380))
+ax = Axis(
+    fig[1, 1];
+    title=&quot;Window Comparison (N = $N_cmp)&quot;,
+    xlabel=&quot;Pixel Index&quot;,
+    ylabel=&quot;Window Value&quot;,
+)
+lines!(ax, pixels, GaussianWindow(16)((N_cmp,)); label=&quot;Gaussian (width=16)&quot;, linewidth=2)
+lines!(ax, pixels, HannWindow()((N_cmp,));       label=&quot;Hann&quot;,                linewidth=2)
+lines!(ax, pixels, TukeyWindow(0.5)((N_cmp,));   label=&quot;Tukey (α=0.5)&quot;,      linewidth=2)
+lines!(ax, pixels, TukeyWindow(0.25)((N_cmp,));  label=&quot;Tukey (α=0.25)&quot;,     linewidth=2)
+hlines!(ax, [0.0, 1.0]; color=:gray, linestyle=:dot, linewidth=1)
+axislegend(ax; position=:cb)
+fig</code></pre><img src="08a0f4b7.png" alt="Example block output"/><h2 id="Practical-Application:-Windowed-Fourier-Analysis"><a class="docs-heading-anchor" href="#Practical-Application:-Windowed-Fourier-Analysis">Practical Application: Windowed Fourier Analysis</a><a id="Practical-Application:-Windowed-Fourier-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Practical-Application:-Windowed-Fourier-Analysis" title="Permalink"></a></h2><p>Applying a window before FFT reduces spectral leakage caused by the implicit periodic extension of a finite signal. This example illustrates the resolution–leakage tradeoff: a narrow window suppresses background trends but broadens spectral peaks; a wide window preserves peak sharpness but retains more background leakage.</p><pre><code class="language-julia hljs">using FFTW
+
+# Increase resolution for better spectral analysis
+N = 256
+x = 1:N</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1:256</code></pre><p>Add a slowly varying linear background to illustrate edge effects</p><pre><code class="language-julia hljs">f1 = 7.3
+f2 = 3.7
+background = 1 / N .* (x .- N / 2)
+test_signal =
+    sin.(2π * f1 * x / N) .+ 0.5 * sin.(2π * f2 * x / N) .+ 5background .+ 0.1 * randn(N)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">256-element Vector{Float64}:
+ -2.299817590968429
+ -2.0387932360886203
+ -1.8470993186852849
+ -1.6140911864431653
+ -1.4338974557188129
+ -1.3133717692580114
+ -1.132370634577485
+ -1.0054666166069997
+ -0.9249263955085972
+ -0.9283197074795199
+  ⋮
+  2.572745014454633
+  2.8388225434369314
+  2.845142452766589
+  2.8449189204706986
+  3.009851125349838
+  3.0251004504441688
+  3.1421714043971303
+  2.802175953494253
+  2.729342439831053</code></pre><p>Create matching windows</p><pre><code class="language-julia hljs">window_narrow = GaussianWindow(N / 5)((N,))
+window_medium = GaussianWindow(N / 2)((N,))
+window_wide = GaussianWindow(N)((N,))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">256-element Vector{Float64}:
+ 0.8833574520381205
+ 0.8850709403158978
+ 0.8867742211201229
+ 0.8884672227773293
+ 0.8901498739476544
+ 0.8918221036298363
+ 0.893483841166191
+ 0.8951350162475755
+ 0.8967755589183324
+ 0.8984053995812165
+ ⋮
+ 0.8967755589183324
+ 0.8951350162475755
+ 0.893483841166191
+ 0.8918221036298363
+ 0.8901498739476544
+ 0.8884672227773293
+ 0.8867742211201229
+ 0.8850709403158978
+ 0.8833574520381205</code></pre><p>Apply different windows</p><pre><code class="language-julia hljs">windowed_narrow = test_signal .* window_narrow
+windowed_medium = test_signal .* window_medium
+windowed_wide = test_signal .* window_wide</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">256-element Vector{Float64}:
+ -2.03156100731032
+ -1.8044766465746473
+ -1.6379600596586532
+ -1.4340671137285235
+ -1.2763836394619636
+ -1.1712939741077195
+ -1.0117548642060885
+ -0.9000283761929014
+ -0.8294513852905409
+ -0.834007437737256
+  ⋮
+  2.3071748482919063
+  2.541129463543401
+  2.54208880736289
+  2.5371615763105013
+  2.6792185998313642
+  2.6877025958285783
+  2.786396599760188
+  2.480124506089756
+  2.410984983388666</code></pre><p>Compute FFT spectra, normalised by window energy so peak amplitudes are comparable</p><pre><code class="language-julia hljs">fft_original = abs.(fft(test_signal))
+fft_narrow = abs.(fft(windowed_narrow))
+fft_medium = abs.(fft(windowed_medium))
+fft_wide = abs.(fft(windowed_wide))
+
+# Normalise by sqrt(window_energy * N) so a pure sinusoid gives amplitude 0.5 regardless of window
+fft_original ./= sqrt(N * N)                              # rectangular implicit window
+fft_narrow   ./= sqrt(sum(abs2.(window_narrow)) * N)
+fft_medium   ./= sqrt(sum(abs2.(window_medium)) * N)
+fft_wide     ./= sqrt(sum(abs2.(window_wide))   * N)
+
+freq = fftfreq(N, 1.0)
+
+f1_freq = f1 / N
+f2_freq = f2 / N
+# Nearest DFT bin frequencies — spectral peaks land here, not at the true (non-integer) frequencies
+f1_bin = round(Int, f1) / N
+f2_bin = round(Int, f2) / N
+
+fig = Figure(; size=(1000, 850))
+
+# Time domain
+ax1 = Axis(fig[1, 1]; title=&quot;Windowed Signals&quot;, xlabel=&quot;Sample&quot;, ylabel=&quot;Amplitude&quot;)
+lines!(ax1, x, test_signal; label=&quot;Original&quot;, linewidth=2)
+lines!(ax1, x, windowed_narrow; label=&quot;Narrow window&quot;, linewidth=2)
+lines!(ax1, x, windowed_medium; label=&quot;Medium window&quot;, linewidth=2)
+lines!(ax1, x, windowed_wide; label=&quot;Wide window&quot;, linewidth=2)
+axislegend(ax1; position=:rt)
+
+# Full frequency domain
+ax2 = Axis(fig[2, 1]; title=&quot;FFT Spectra&quot;, xlabel=&quot;Frequency (in 1/N)&quot;, ylabel=&quot;Magnitude&quot;)
+lines!(ax2, freq[1:div(N, 2)], fft_original[1:div(N, 2)]; label=&quot;Original&quot;, linewidth=2)
+lines!(ax2, freq[1:div(N, 2)], fft_narrow[1:div(N, 2)]; label=&quot;Narrow window&quot;, linewidth=2)
+lines!(ax2, freq[1:div(N, 2)], fft_medium[1:div(N, 2)]; label=&quot;Medium window&quot;, linewidth=2)
+lines!(ax2, freq[1:div(N, 2)], fft_wide[1:div(N, 2)]; label=&quot;Wide window&quot;, linewidth=2)
+vlines!(ax2, [f2_freq, f1_freq]; linewidth=2, alpha=0.7)
+ax2.xticks = ([f2_freq, f1_freq], [&quot;$(f2)&quot;, &quot;$(f1)&quot;])
+axislegend(ax2; position=:rt)
+
+# Zoom into the peak region
+zoom_hw = 2 * f1_freq
+ax3 = Axis(
+    fig[3, 1];
+    title=&quot;FFT Spectra — zoom near peaks&quot;,
+    xlabel=&quot;Frequency (in 1/N)&quot;,
+    ylabel=&quot;Magnitude&quot;,
+    limits=(0, f1_freq + zoom_hw, nothing, nothing),
+)
+lines!(ax3, freq[1:div(N, 2)], fft_original[1:div(N, 2)]; label=&quot;Original&quot;, linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_narrow[1:div(N, 2)]; label=&quot;Narrow window&quot;, linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_medium[1:div(N, 2)]; label=&quot;Medium window&quot;, linewidth=2)
+lines!(ax3, freq[1:div(N, 2)], fft_wide[1:div(N, 2)]; label=&quot;Wide window&quot;, linewidth=2)
+vlines!(ax3, [f2_freq, f1_freq]; linewidth=2, alpha=0.7)
+vlines!(ax3, [f2_bin, f1_bin]; linewidth=1, linestyle=:dash, color=(:gray, 0.5))
+ax3.xticks = (
+    [f2_bin, f2_freq, f1_bin, f1_freq],
+    [&quot;\nk=$(round(Int,f2))/N&quot;, &quot;$(f2)&quot;, &quot;\nk=$(round(Int,f1))/N&quot;, &quot;$(f1)&quot;],
+)
+axislegend(ax3; position=:rt)
+
+fig</code></pre><img src="32e91d14.png" alt="Example block output"/><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>PhaseUtils provides three complementary window types, all following the same functor interface: construct a window object, then call it with a size tuple to get an array.</p><table><tr><th style="text-align: right">Type</th><th style="text-align: right">Parameters</th><th style="text-align: right">Reaches 0 at edges?</th><th style="text-align: right">Flat top?</th></tr><tr><td style="text-align: right"><code>GaussianWindow(width)</code></td><td style="text-align: right">width (+ optional center)</td><td style="text-align: right">No</td><td style="text-align: right">No</td></tr><tr><td style="text-align: right"><code>HannWindow()</code></td><td style="text-align: right">none</td><td style="text-align: right">Yes</td><td style="text-align: right">No</td></tr><tr><td style="text-align: right"><code>TukeyWindow(alpha)</code></td><td style="text-align: right">alpha ∈ [0,1] (scalar or tuple)</td><td style="text-align: right">Yes (for α &gt; 0)</td><td style="text-align: right">Yes</td></tr></table><p>All windows are N-dimensional and separable: the N-D window is the outer product of 1D windows applied along each dimension. Asymmetric behaviour is available via tuple parameters.</p><p>Typical use cases:</p><ul><li><strong>Fourier analysis</strong>: apply before FFT to suppress spectral leakage</li><li><strong>Image tapering</strong>: suppress edge artefacts before iterative algorithms</li><li><strong>Apodisation</strong>: smooth the pupil boundary in phase retrieval</li></ul><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../guides/tilts_axes/">« Tilts and Axes</a><a class="docs-footer-nextpage" href="../../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 1 May 2026 12:38">Friday 1 May 2026</span>. Using Julia version 1.10.11.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
